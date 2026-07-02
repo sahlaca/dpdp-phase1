@@ -175,32 +175,6 @@ function ReportView({
           `Gap analysis reflects recorded questionnaire responses only.`}
       </p>
 
-      {Object.keys(questionsBySection).length > 0 && (
-        <section className="card">
-          <h2>Questionnaire responses</h2>
-          <p className="section-note">
-            Complete record of assessment questions. Items without a response are marked{" "}
-            <em>Not answered</em>.
-          </p>
-          {Object.entries(questionsBySection).map(([section, questions]) => (
-            <div key={section} className="questionnaire-section">
-              <h3>{section}</h3>
-              {questions.map((q) => (
-                <article
-                  key={q.id}
-                  className={`question-response ${q.answered ? "" : "unanswered"}`}
-                >
-                  <p className="question-prompt">{q.prompt}</p>
-                  <p className="question-answer">
-                    <strong>Response:</strong> {q.answer_display}
-                  </p>
-                </article>
-              ))}
-            </div>
-          ))}
-        </section>
-      )}
-
       <section className="card">
         <h2>Regulatory timeline</h2>
         <div className="timeline">
@@ -266,6 +240,32 @@ function ReportView({
           ))}
         </section>
       ))}
+
+      {Object.keys(questionsBySection).length > 0 && (
+        <section className="card">
+          <h2>Questionnaire responses</h2>
+          <p className="section-note">
+            Complete record of your assessment answers for reference. Items without a response are
+            marked <em>Not answered</em>.
+          </p>
+          {Object.entries(questionsBySection).map(([section, questions]) => (
+            <div key={section} className="questionnaire-section">
+              <h3>{section}</h3>
+              {questions.map((q) => (
+                <article
+                  key={q.id}
+                  className={`question-response ${q.answered ? "" : "unanswered"}`}
+                >
+                  <p className="question-prompt">{q.prompt}</p>
+                  <p className="question-answer">
+                    <strong>Response:</strong> {q.answer_display}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ))}
+        </section>
+      )}
 
       <p className="disclaimer">{report.disclaimer}</p>
     </>

@@ -435,14 +435,6 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   {plan_html}
 
   <div class="page-break"></div>
-  <h2 class="section-title">Questionnaire responses</h2>
-  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    All questions from the assessment. Items without a recorded response are marked <em>Not answered</em>.
-    ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} responses recorded)
-  </p>
-  {questionnaire_html}
-
-  <div class="page-break"></div>
   <h2 class="section-title">Detailed obligation assessment</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
     Obligations assessed from your answers. Items marked Not Answered need questionnaire input.
@@ -453,6 +445,15 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   <h2 class="section-title">Legal source documents</h2>
   <p style="font-size:9pt;color:#64748b">Primary and secondary sources used to ground this assessment.</p>
   <ul class="sources-list">{sources_html}</ul>
+
+  <div class="page-break"></div>
+  <h2 class="section-title">Questionnaire responses</h2>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
+    Complete record of your assessment answers for reference. Items without a recorded response are
+    marked <em>Not answered</em>.
+    ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} responses recorded)
+  </p>
+  {questionnaire_html}
 
   <p class="disclaimer">{disclaimer}</p>
 </body>
