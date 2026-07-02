@@ -35,7 +35,8 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
         f"Gap analysis reflects recorded responses only. "
         f"{obligations_assessed} of {obligations_in_scope} applicable obligations were assessed; "
         f"{obligations_pending} require additional questionnaire input before scoring. "
-        f"(The assessment has {questions_total} questions and {obligations_in_scope} obligations in scope — they are not the same count.)"
+        f"Questions and obligations are separate: several questions can inform one obligation, "
+        f"and one obligation may need answers to multiple questions."
     )
 
     # Collect unique source IDs referenced across obligations
