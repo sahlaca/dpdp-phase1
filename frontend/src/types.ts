@@ -62,12 +62,14 @@ export interface GapReport {
   sector: string;
   summary: {
     total_obligations: number;
+    obligations_assessed?: number;
     gaps_found: number;
     critical_gaps: number;
     questions_total?: number;
     questions_answered?: number;
     questions_not_answered?: number;
     obligations_not_answered?: number;
+    obligations_in_scope?: number;
   };
   regulatory_timeline: Array<{
     phase: string;

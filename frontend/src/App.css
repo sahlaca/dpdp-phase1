@@ -199,6 +199,17 @@ body {
   color: #dc2626;
 }
 
+.stat-value.muted-stat {
+  color: var(--muted);
+}
+
+.summary-hint {
+  margin: -0.5rem 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .stat-label {
   font-size: 0.8rem;
   color: var(--muted);

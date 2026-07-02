@@ -156,8 +156,16 @@ function ReportView({
 
       <section className="card summary-card">
         <div className="stat">
-          <span className="stat-value">{report.summary.total_obligations}</span>
-          <span className="stat-label">Obligations</span>
+          <span className="stat-value">
+            {report.summary.questions_answered ?? 0}/{report.summary.questions_total ?? 0}
+          </span>
+          <span className="stat-label">Questions answered</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">
+            {report.summary.obligations_assessed ?? report.summary.total_obligations}
+          </span>
+          <span className="stat-label">Obligations assessed</span>
         </div>
         <div className="stat">
           <span className="stat-value">{report.summary.gaps_found}</span>
@@ -165,17 +173,20 @@ function ReportView({
         </div>
         <div className="stat">
           <span className="stat-value critical">{report.summary.critical_gaps}</span>
-          <span className="stat-label">Critical</span>
+          <span className="stat-label">Critical gaps</span>
         </div>
-        {report.summary.questions_total != null && (
+        {(report.summary.obligations_not_answered ?? 0) > 0 && (
           <div className="stat">
-            <span className="stat-value">{report.summary.questions_answered ?? 0}</span>
-            <span className="stat-label">
-              Answered / {report.summary.questions_total}
-            </span>
+            <span className="stat-value muted-stat">{report.summary.obligations_not_answered}</span>
+            <span className="stat-label">Awaiting answers</span>
           </div>
         )}
       </section>
+      <p className="summary-hint">
+        Gaps and critical counts are based only on the {report.summary.questions_answered ?? 0} questions
+        you answered. {(report.summary.obligations_not_answered ?? 0) > 0 &&
+          `${report.summary.obligations_not_answered} more obligations need related questions before they can be scored.`}
+      </p>
 
       {Object.keys(questionsBySection).length > 0 && (
         <section className="card">

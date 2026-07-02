@@ -22,6 +22,7 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     ]
     not_met = [o for o in obligations if o.status == ComplianceStatus.NOT_MET]
     not_answered = [o for o in obligations if o.status == ComplianceStatus.NOT_ANSWERED]
+    assessed = [o for o in obligations if o.status != ComplianceStatus.NOT_ANSWERED]
 
     # Collect unique source IDs referenced across obligations
     referenced_source_ids: set[str] = set()
@@ -58,13 +59,15 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
         "company_name": submission.company_name,
         "sector": submission.sector,
         "summary": {
-            "total_obligations": len(obligations),
+            "total_obligations": len(assessed),
+            "obligations_assessed": len(assessed),
             "gaps_found": len(gaps),
             "critical_gaps": len(not_met),
             "questions_total": len(questionnaire_responses),
             "questions_answered": sum(1 for q in questionnaire_responses if q["answered"]),
             "questions_not_answered": sum(1 for q in questionnaire_responses if not q["answered"]),
             "obligations_not_answered": len(not_answered),
+            "obligations_in_scope": len(obligations),
         },
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,

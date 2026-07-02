@@ -401,7 +401,11 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   <h2 class="section-title">Executive summary</h2>
   <div class="summary">
     <div class="stat">
-      <span class="stat-value">{summary.get("total_obligations", 0)}</span>
+      <span class="stat-value">{summary.get("questions_answered", 0)}/{summary.get("questions_total", 0)}</span>
+      <span class="stat-label">Questions answered</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
       <span class="stat-label">Obligations assessed</span>
     </div>
     <div class="stat">
@@ -413,6 +417,10 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
       <span class="stat-label">Critical gaps</span>
     </div>
   </div>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
+    Gaps are based only on answered questions.
+    {summary.get("obligations_not_answered", 0)} obligation(s) await related answers before scoring.
+  </p>
 
   <h2 class="section-title">Regulatory timeline</h2>
   <table class="timeline-table">
