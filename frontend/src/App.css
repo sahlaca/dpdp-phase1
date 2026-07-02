@@ -180,7 +180,7 @@ body {
 /* Summary */
 .summary-card {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 }
 
@@ -404,6 +404,53 @@ label {
 
 .obligation.status-met {
   border-color: #16a34a;
+}
+
+.obligation.status-not_answered {
+  border-color: #94a3b8;
+}
+
+.section-note {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.questionnaire-section {
+  margin-bottom: 1.25rem;
+}
+
+.questionnaire-section h3 {
+  font-size: 0.95rem;
+  color: var(--primary);
+  margin: 0 0 0.75rem;
+}
+
+.question-response {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.question-response.unanswered {
+  background: #f8fafc;
+}
+
+.question-prompt {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+}
+
+.question-answer {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.question-response.unanswered .question-answer {
+  color: var(--muted);
+  font-style: italic;
 }
 
 .obligation-header {

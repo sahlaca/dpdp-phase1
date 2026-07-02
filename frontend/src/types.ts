@@ -64,6 +64,10 @@ export interface GapReport {
     total_obligations: number;
     gaps_found: number;
     critical_gaps: number;
+    questions_total?: number;
+    questions_answered?: number;
+    questions_not_answered?: number;
+    obligations_not_answered?: number;
   };
   regulatory_timeline: Array<{
     phase: string;
@@ -71,6 +75,13 @@ export interface GapReport {
     description: string;
   }>;
   legal_sources: LegalSource[];
+  questionnaire_responses?: Array<{
+    id: string;
+    section: string;
+    prompt: string;
+    answered: boolean;
+    answer_display: string;
+  }>;
   obligations: Array<{
     id: string;
     title: string;

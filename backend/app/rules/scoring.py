@@ -93,7 +93,8 @@ OBLIGATION_QUESTIONS: dict[str, list[str]] = {
 
 
 def _not_assessed() -> tuple[ComplianceStatus, str, str]:
-    return _na(
+    return (
+        ComplianceStatus.NOT_ANSWERED,
         "Related questionnaire items not answered.",
         "Complete the relevant questions to assess this obligation.",
     )
@@ -114,6 +115,11 @@ def score_obligation(obligation_id: str, answers: dict[str, Any]) -> tuple[Compl
             return skip
         if obligation_id == "scope_digital_personal_data":
             return _na("No digital personal data processing reported.", "Confirm whether any data is digitised..")
+        if obligation_id == "sdf_assessment":
+            return _na(
+                "No personal data processing reported — SDF assessment not required.",
+                "Reassess if processing volume or sensitivity increases.",
+            )
 
     qkeys = OBLIGATION_QUESTIONS.get(obligation_id)
     if qkeys and not _any_key_answered(answers, qkeys):

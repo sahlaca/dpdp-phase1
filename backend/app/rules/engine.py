@@ -10,8 +10,9 @@ from app.rules.scoring import score_obligation
 _STATUS_ORDER = {
     ComplianceStatus.NOT_MET: 0,
     ComplianceStatus.PARTIAL: 1,
-    ComplianceStatus.MET: 2,
-    ComplianceStatus.NOT_APPLICABLE: 3,
+    ComplianceStatus.NOT_ANSWERED: 2,
+    ComplianceStatus.MET: 3,
+    ComplianceStatus.NOT_APPLICABLE: 4,
 }
 
 

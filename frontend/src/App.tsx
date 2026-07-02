@@ -115,6 +115,15 @@ function ReportView({
     return map;
   }, [report.obligations]);
 
+  const questionsBySection = useMemo(() => {
+    const map: Record<string, NonNullable<GapReport["questionnaire_responses"]>> = {};
+    for (const q of report.questionnaire_responses ?? []) {
+      if (!map[q.section]) map[q.section] = [];
+      map[q.section].push(q);
+    }
+    return map;
+  }, [report.questionnaire_responses]);
+
   return (
     <>
       <header className="page-header">
@@ -158,7 +167,41 @@ function ReportView({
           <span className="stat-value critical">{report.summary.critical_gaps}</span>
           <span className="stat-label">Critical</span>
         </div>
+        {report.summary.questions_total != null && (
+          <div className="stat">
+            <span className="stat-value">{report.summary.questions_answered ?? 0}</span>
+            <span className="stat-label">
+              Answered / {report.summary.questions_total}
+            </span>
+          </div>
+        )}
       </section>
+
+      {Object.keys(questionsBySection).length > 0 && (
+        <section className="card">
+          <h2>Questionnaire responses</h2>
+          <p className="section-note">
+            All assessment questions are listed below. Unanswered items are marked{" "}
+            <em>Not answered</em>.
+          </p>
+          {Object.entries(questionsBySection).map(([section, questions]) => (
+            <div key={section} className="questionnaire-section">
+              <h3>{section}</h3>
+              {questions.map((q) => (
+                <article
+                  key={q.id}
+                  className={`question-response ${q.answered ? "" : "unanswered"}`}
+                >
+                  <p className="question-prompt">{q.prompt}</p>
+                  <p className="question-answer">
+                    <strong>Response:</strong> {q.answer_display}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ))}
+        </section>
+      )}
 
       <section className="card">
         <h2>Regulatory timeline</h2>

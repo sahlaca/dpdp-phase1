@@ -10,6 +10,7 @@ class ComplianceStatus(str, Enum):
     MET = "met"
     PARTIAL = "partial"
     NOT_MET = "not_met"
+    NOT_ANSWERED = "not_answered"
     NOT_APPLICABLE = "not_applicable"
 
 

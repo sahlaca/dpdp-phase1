@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from app.reports.questionnaire_summary import build_questionnaire_responses
 from app.questionnaire.schema import QuestionnaireSubmission
 from app.rules.engine import evaluate_obligations
 from app.rules.models import ComplianceStatus
@@ -8,11 +9,19 @@ from app.sources.catalog import get_catalog
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     all_obligations = evaluate_obligations(submission.answers)
-    obligations = [o for o in all_obligations if o.status != ComplianceStatus.NOT_APPLICABLE]
+    obligations = [
+        o for o in all_obligations if o.status != ComplianceStatus.NOT_APPLICABLE
+    ]
+    questionnaire_responses = build_questionnaire_responses(submission.answers)
     catalog = get_catalog()
 
-    gaps = [o for o in obligations if o.status in (ComplianceStatus.NOT_MET, ComplianceStatus.PARTIAL)]
+    gaps = [
+        o
+        for o in obligations
+        if o.status in (ComplianceStatus.NOT_MET, ComplianceStatus.PARTIAL)
+    ]
     not_met = [o for o in obligations if o.status == ComplianceStatus.NOT_MET]
+    not_answered = [o for o in obligations if o.status == ComplianceStatus.NOT_ANSWERED]
 
     # Collect unique source IDs referenced across obligations
     referenced_source_ids: set[str] = set()
@@ -52,9 +61,14 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
             "total_obligations": len(obligations),
             "gaps_found": len(gaps),
             "critical_gaps": len(not_met),
+            "questions_total": len(questionnaire_responses),
+            "questions_answered": sum(1 for q in questionnaire_responses if q["answered"]),
+            "questions_not_answered": sum(1 for q in questionnaire_responses if not q["answered"]),
+            "obligations_not_answered": len(not_answered),
         },
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,
+        "questionnaire_responses": questionnaire_responses,
         "obligations": [o.model_dump() for o in obligations],
         "prioritized_action_plan": action_plan,
         "disclaimer": (

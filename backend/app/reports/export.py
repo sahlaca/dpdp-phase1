@@ -11,6 +11,7 @@ _STATUS_LABELS = {
     "met": "Met",
     "partial": "Partially Met",
     "not_met": "Not Met",
+    "not_answered": "Not Answered",
     "not_applicable": "Not Applicable",
 }
 
@@ -18,6 +19,7 @@ _STATUS_COLORS = {
     "met": "#16a34a",
     "partial": "#d97706",
     "not_met": "#dc2626",
+    "not_answered": "#64748b",
     "not_applicable": "#64748b",
 }
 
@@ -196,6 +198,22 @@ def _report_styles(for_pdf: bool) -> str:
       font-size: 9.5pt;
     }}
     .phase-block li {{ margin-bottom: 0.25rem; }}
+    .question-row {{
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.5rem;
+      page-break-inside: avoid;
+    }}
+    .question-prompt {{
+      margin: 0 0 0.35rem;
+      font-size: 9.5pt;
+      color: #0f172a;
+    }}
+    .question-answer {{
+      margin: 0;
+      font-size: 9pt;
+    }}
     .obligation {{
       border-left: 4px solid #cbd5e1;
       padding: 0.65rem 0 0.65rem 0.85rem;
@@ -321,6 +339,22 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
         dl_text = f' <span style="color:#64748b;font-weight:400">(by {escape(deadline)})</span>' if deadline else ""
         plan_html += f'<div class="phase-block"><h3>{escape(phase.get("phase", ""))}{dl_text}</h3><ul>{items}</ul></div>'
 
+    questionnaire_html = ""
+    current_section = ""
+    for row in report.get("questionnaire_responses", []):
+        section = row.get("section", "")
+        if section != current_section:
+            current_section = section
+            questionnaire_html += f'<h3 class="category">{escape(section)}</h3>\n'
+        answered = row.get("answered", False)
+        answer = escape(row.get("answer_display", "Not answered"))
+        answer_style = "color:#0f172a" if answered else "color:#64748b;font-style:italic"
+        questionnaire_html += f"""
+        <div class="question-row">
+          <p class="question-prompt">{escape(row.get("prompt", ""))}</p>
+          <p class="question-answer" style="{answer_style}"><strong>Response:</strong> {answer}</p>
+        </div>"""
+
     sources_html = ""
     for s in report.get("legal_sources", []):
         if not s.get("file_available"):
@@ -390,9 +424,17 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   {plan_html}
 
   <div class="page-break"></div>
+  <h2 class="section-title">Questionnaire responses</h2>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
+    All questions from the assessment. Unanswered items are marked <em>Not answered</em>.
+    ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} answered)
+  </p>
+  {questionnaire_html}
+
+  <div class="page-break"></div>
   <h2 class="section-title">Detailed obligation assessment</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    Applicable obligations only. Status based on questionnaire answers against DPDP Act 2023 and Rules 2025.
+    Obligations assessed from your answers. Items marked Not Answered need questionnaire input.
   </p>
   {obligations_html}
 
