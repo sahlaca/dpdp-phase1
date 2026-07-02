@@ -2,6 +2,8 @@
 
 Questionnaire-driven app that produces personalized DPDP compliance gap reports for Indian SMEs.
 
+**Full documentation:** [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md)
+
 ## Structure
 
 ```
