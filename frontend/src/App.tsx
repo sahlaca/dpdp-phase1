@@ -157,12 +157,6 @@ function ReportView({
       <section className="card summary-card">
         <div className="stat">
           <span className="stat-value">
-            {report.summary.questions_answered ?? 0}/{report.summary.questions_total ?? 0}
-          </span>
-          <span className="stat-label">Responses recorded</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">
             {report.summary.obligations_assessed ?? report.summary.total_obligations}
           </span>
           <span className="stat-label">Obligations assessed</span>
@@ -175,18 +169,10 @@ function ReportView({
           <span className="stat-value critical">{report.summary.critical_gaps}</span>
           <span className="stat-label">Critical gaps</span>
         </div>
-        {(report.summary.obligations_not_answered ?? 0) > 0 && (
-          <div className="stat">
-            <span className="stat-value muted-stat">{report.summary.obligations_not_answered}</span>
-            <span className="stat-label">Pending assessment</span>
-          </div>
-        )}
       </section>
       <p className="summary-hint">
-        Gap analysis reflects recorded responses only ({report.summary.questions_answered ?? 0} of{" "}
-        {report.summary.questions_total ?? 0} items).{" "}
-        {(report.summary.obligations_not_answered ?? 0) > 0 &&
-          `${report.summary.obligations_not_answered} obligation(s) remain pending further questionnaire input.`}
+        {report.summary_note ??
+          `Gap analysis reflects recorded questionnaire responses only.`}
       </p>
 
       {Object.keys(questionsBySection).length > 0 && (

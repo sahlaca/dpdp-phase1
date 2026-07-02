@@ -105,4 +105,5 @@ export interface GapReport {
     items: string[];
   }>;
   disclaimer: string;
+  summary_note?: string;
 }

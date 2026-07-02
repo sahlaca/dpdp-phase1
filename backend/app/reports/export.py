@@ -149,7 +149,7 @@ def _report_styles(for_pdf: bool) -> str:
       padding: 0.85rem 0.4rem;
       text-align: center;
       vertical-align: middle;
-      width: 25%;
+      width: 33.33%;
       height: 4.25rem;
     }}
     .stat-value {{
@@ -408,10 +408,6 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   <table class="summary-table">
     <tr>
       <td class="stat">
-        <span class="stat-value">{summary.get("questions_answered", 0)}/{summary.get("questions_total", 0)}</span>
-        <span class="stat-label">Responses recorded</span>
-      </td>
-      <td class="stat">
         <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
         <span class="stat-label">Obligations assessed</span>
       </td>
@@ -425,9 +421,8 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
       </td>
     </tr>
   </table>
-  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    Gap analysis reflects recorded questionnaire responses only.
-    {summary.get("obligations_not_answered", 0)} obligation(s) remain pending further input.
+  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem;line-height:1.5">
+    {escape(report.get("summary_note", ""))}
   </p>
 
   <h2 class="section-title">Regulatory timeline</h2>

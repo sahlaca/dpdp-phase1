@@ -24,6 +24,20 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     not_answered = [o for o in obligations if o.status == ComplianceStatus.NOT_ANSWERED]
     assessed = [o for o in obligations if o.status != ComplianceStatus.NOT_ANSWERED]
 
+    questions_answered = sum(1 for q in questionnaire_responses if q["answered"])
+    questions_total = len(questionnaire_responses)
+    obligations_assessed = len(assessed)
+    obligations_pending = len(not_answered)
+    obligations_in_scope = len(obligations)
+
+    summary_note = (
+        f"{questions_answered} of {questions_total} questionnaire responses recorded. "
+        f"Gap analysis reflects recorded responses only. "
+        f"{obligations_assessed} of {obligations_in_scope} applicable obligations were assessed; "
+        f"{obligations_pending} require additional questionnaire input before scoring. "
+        f"(The assessment has {questions_total} questions and {obligations_in_scope} obligations in scope — they are not the same count.)"
+    )
+
     # Collect unique source IDs referenced across obligations
     referenced_source_ids: set[str] = set()
     for o in obligations:
@@ -59,16 +73,17 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
         "company_name": submission.company_name,
         "sector": submission.sector,
         "summary": {
-            "total_obligations": len(assessed),
-            "obligations_assessed": len(assessed),
+            "total_obligations": obligations_assessed,
+            "obligations_assessed": obligations_assessed,
             "gaps_found": len(gaps),
             "critical_gaps": len(not_met),
-            "questions_total": len(questionnaire_responses),
-            "questions_answered": sum(1 for q in questionnaire_responses if q["answered"]),
-            "questions_not_answered": sum(1 for q in questionnaire_responses if not q["answered"]),
-            "obligations_not_answered": len(not_answered),
-            "obligations_in_scope": len(obligations),
+            "questions_total": questions_total,
+            "questions_answered": questions_answered,
+            "questions_not_answered": questions_total - questions_answered,
+            "obligations_not_answered": obligations_pending,
+            "obligations_in_scope": obligations_in_scope,
         },
+        "summary_note": summary_note,
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,
         "questionnaire_responses": questionnaire_responses,
