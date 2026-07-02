@@ -170,6 +170,9 @@ function ReportView({
           <span className="stat-label">Critical gaps</span>
         </div>
       </section>
+      {report.obligation_explainer && (
+        <p className="summary-intro">{report.obligation_explainer}</p>
+      )}
       <p className="summary-hint">
         {report.summary_note ??
           `Gap analysis reflects recorded questionnaire responses only.`}

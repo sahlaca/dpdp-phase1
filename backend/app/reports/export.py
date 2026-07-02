@@ -135,6 +135,19 @@ def _report_styles(for_pdf: bool) -> str:
       margin: 1.25rem 0 0.5rem;
       border: none;
     }}
+    .summary-intro {{
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 0 0 0.75rem;
+      font-size: 9pt;
+      color: #334155;
+      line-height: 1.5;
+    }}
+    .summary-intro strong {{
+      color: #1e40af;
+    }}
     .summary-table {{
       width: 100%;
       border-collapse: separate;
@@ -421,6 +434,7 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
       </td>
     </tr>
   </table>
+  <div class="summary-intro">{escape(report.get("obligation_explainer", ""))}</div>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem;line-height:1.5">
     {escape(report.get("summary_note", ""))}
   </p>

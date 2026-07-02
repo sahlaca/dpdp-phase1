@@ -218,6 +218,17 @@ body {
   line-height: 1.45;
 }
 
+.summary-intro {
+  margin: 0 0 0.75rem;
+  padding: 0.85rem 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
 .stat-label {
   font-size: 0.7rem;
   color: var(--muted);

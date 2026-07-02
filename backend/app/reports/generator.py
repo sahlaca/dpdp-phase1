@@ -6,6 +6,13 @@ from app.rules.engine import evaluate_obligations
 from app.rules.models import ComplianceStatus
 from app.sources.catalog import get_catalog
 
+OBLIGATION_EXPLAINER = (
+    "What is an obligation? A specific legal requirement under India's Digital Personal Data "
+    "Protection Act 2023 and Rules 2025 — for example, publishing a privacy notice, obtaining "
+    "valid consent, or appointing a grievance officer. The questionnaire asks about your "
+    "business practices; this report shows which requirements apply to you and whether you meet them."
+)
+
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     all_obligations = evaluate_obligations(submission.answers)
@@ -85,6 +92,7 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
             "obligations_in_scope": obligations_in_scope,
         },
         "summary_note": summary_note,
+        "obligation_explainer": OBLIGATION_EXPLAINER,
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,
         "questionnaire_responses": questionnaire_responses,
