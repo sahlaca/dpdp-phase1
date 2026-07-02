@@ -135,34 +135,40 @@ def _report_styles(for_pdf: bool) -> str:
       margin: 1.25rem 0 0.5rem;
       border: none;
     }}
-    .summary {{
-      display: table;
+    .summary-table {{
       width: 100%;
       border-collapse: separate;
-      border-spacing: 10px 0;
+      border-spacing: 8px;
+      table-layout: fixed;
       margin: 0 0 0.5rem;
     }}
-    .stat {{
-      display: table-cell;
+    .summary-table td.stat {{
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 1rem 0.5rem;
+      padding: 0.85rem 0.4rem;
       text-align: center;
-      width: 33%;
+      vertical-align: middle;
+      width: 25%;
+      height: 4.25rem;
     }}
     .stat-value {{
-      font-size: 22pt;
+      font-size: 20pt;
       font-weight: 700;
       display: block;
       color: #0f172a;
+      line-height: 1.15;
+      margin-bottom: 0.35rem;
     }}
     .stat-value.critical {{ color: #dc2626; }}
     .stat-label {{
-      font-size: 8pt;
+      font-size: 7.5pt;
       color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      display: block;
+      line-height: 1.35;
+      min-height: 2.1em;
     }}
     .timeline-table {{
       width: 100%;
@@ -399,27 +405,29 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   </div>
 
   <h2 class="section-title">Executive summary</h2>
-  <div class="summary">
-    <div class="stat">
-      <span class="stat-value">{summary.get("questions_answered", 0)}/{summary.get("questions_total", 0)}</span>
-      <span class="stat-label">Questions answered</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
-      <span class="stat-label">Obligations assessed</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value">{summary.get("gaps_found", 0)}</span>
-      <span class="stat-label">Gaps identified</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value critical">{summary.get("critical_gaps", 0)}</span>
-      <span class="stat-label">Critical gaps</span>
-    </div>
-  </div>
+  <table class="summary-table">
+    <tr>
+      <td class="stat">
+        <span class="stat-value">{summary.get("questions_answered", 0)}/{summary.get("questions_total", 0)}</span>
+        <span class="stat-label">Responses recorded</span>
+      </td>
+      <td class="stat">
+        <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
+        <span class="stat-label">Obligations assessed</span>
+      </td>
+      <td class="stat">
+        <span class="stat-value">{summary.get("gaps_found", 0)}</span>
+        <span class="stat-label">Gaps identified</span>
+      </td>
+      <td class="stat">
+        <span class="stat-value critical">{summary.get("critical_gaps", 0)}</span>
+        <span class="stat-label">Critical gaps</span>
+      </td>
+    </tr>
+  </table>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    Gaps are based only on answered questions.
-    {summary.get("obligations_not_answered", 0)} obligation(s) await related answers before scoring.
+    Gap analysis reflects recorded questionnaire responses only.
+    {summary.get("obligations_not_answered", 0)} obligation(s) remain pending further input.
   </p>
 
   <h2 class="section-title">Regulatory timeline</h2>
@@ -434,8 +442,8 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   <div class="page-break"></div>
   <h2 class="section-title">Questionnaire responses</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    All questions from the assessment. Unanswered items are marked <em>Not answered</em>.
-    ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} answered)
+    All questions from the assessment. Items without a recorded response are marked <em>Not answered</em>.
+    ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} responses recorded)
   </p>
   {questionnaire_html}
 

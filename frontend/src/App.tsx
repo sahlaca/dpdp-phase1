@@ -159,7 +159,7 @@ function ReportView({
           <span className="stat-value">
             {report.summary.questions_answered ?? 0}/{report.summary.questions_total ?? 0}
           </span>
-          <span className="stat-label">Questions answered</span>
+          <span className="stat-label">Responses recorded</span>
         </div>
         <div className="stat">
           <span className="stat-value">
@@ -169,7 +169,7 @@ function ReportView({
         </div>
         <div className="stat">
           <span className="stat-value">{report.summary.gaps_found}</span>
-          <span className="stat-label">Gaps</span>
+          <span className="stat-label">Gaps identified</span>
         </div>
         <div className="stat">
           <span className="stat-value critical">{report.summary.critical_gaps}</span>
@@ -178,21 +178,22 @@ function ReportView({
         {(report.summary.obligations_not_answered ?? 0) > 0 && (
           <div className="stat">
             <span className="stat-value muted-stat">{report.summary.obligations_not_answered}</span>
-            <span className="stat-label">Awaiting answers</span>
+            <span className="stat-label">Pending assessment</span>
           </div>
         )}
       </section>
       <p className="summary-hint">
-        Gaps and critical counts are based only on the {report.summary.questions_answered ?? 0} questions
-        you answered. {(report.summary.obligations_not_answered ?? 0) > 0 &&
-          `${report.summary.obligations_not_answered} more obligations need related questions before they can be scored.`}
+        Gap analysis reflects recorded responses only ({report.summary.questions_answered ?? 0} of{" "}
+        {report.summary.questions_total ?? 0} items).{" "}
+        {(report.summary.obligations_not_answered ?? 0) > 0 &&
+          `${report.summary.obligations_not_answered} obligation(s) remain pending further questionnaire input.`}
       </p>
 
       {Object.keys(questionsBySection).length > 0 && (
         <section className="card">
           <h2>Questionnaire responses</h2>
           <p className="section-note">
-            All assessment questions are listed below. Unanswered items are marked{" "}
+            Complete record of assessment questions. Items without a response are marked{" "}
             <em>Not answered</em>.
           </p>
           {Object.entries(questionsBySection).map(([section, questions]) => (
