@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dpdp-backend
+    environment:
+      DATA_DIR: /app/data
+      FRONTEND_ORIGIN: http://localhost:8080
+    volumes:
+      - ./data:/app/data:ro
+    restart: unless-stopped
+    networks:
+      - dpdp-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dpdp-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dpdp-net
+
+networks:
+  dpdp-net:
+    driver: bridge
