@@ -24,11 +24,19 @@ function QuestionField({
     return (
       <div className="choice-row">
         <label className="radio-pill">
-          <input type="radio" checked={value === true} onChange={() => onChange(true)} />
+          <input
+            type="radio"
+            checked={value === true}
+            onChange={() => onChange(value === true ? undefined : true)}
+          />
           Yes
         </label>
         <label className="radio-pill">
-          <input type="radio" checked={value === false} onChange={() => onChange(false)} />
+          <input
+            type="radio"
+            checked={value === false}
+            onChange={() => onChange(value === false ? undefined : false)}
+          />
           No
         </label>
       </div>
@@ -44,7 +52,7 @@ function QuestionField({
               type="radio"
               name={question.id}
               checked={value === opt.value}
-              onChange={() => onChange(opt.value)}
+              onChange={() => onChange(value === opt.value ? undefined : opt.value)}
             />
             <span>{opt.label}</span>
           </label>
@@ -63,8 +71,10 @@ function QuestionField({
               type="checkbox"
               checked={selected.includes(opt.value)}
               onChange={(e) => {
-                if (e.target.checked) onChange([...selected, opt.value]);
-                else onChange(selected.filter((v) => v !== opt.value));
+                const next = e.target.checked
+                  ? [...selected, opt.value]
+                  : selected.filter((v) => v !== opt.value);
+                onChange(next.length > 0 ? next : undefined);
               }}
             />
             <span>{opt.label}</span>
@@ -98,6 +108,7 @@ function ReportView({
   const byCategory = useMemo(() => {
     const map: Record<string, GapReport["obligations"]> = {};
     for (const o of report.obligations) {
+      if (o.status === "not_applicable") continue;
       if (!map[o.category]) map[o.category] = [];
       map[o.category].push(o);
     }
@@ -227,10 +238,29 @@ export default function App() {
   const [sector, setSector] = useState("hospitality");
   const [answers, setAnswers] = useState<Answers>({});
   const [report, setReport] = useState<GapReport | null>(null);
-  const [lastSubmission, setLastSubmission] = useState<Answers | null>(null);
+  const [formKey, setFormKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function updateAnswer(questionId: string, val: unknown) {
+    setAnswers((prev) => {
+      if (val === undefined) {
+        const { [questionId]: _removed, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [questionId]: val };
+    });
+  }
+
+  function handleStartOver() {
+    setReport(null);
+    setAnswers({});
+    setCompanyName("");
+    setSector(questionnaire?.sectors[0]?.value ?? "hospitality");
+    setError(null);
+    setFormKey((k) => k + 1);
+  }
 
   useEffect(() => {
     Promise.all([fetchQuestionnaire(), fetchSources()])
@@ -252,7 +282,7 @@ export default function App() {
   const payload = () => ({
     company_name: companyName,
     sector,
-    answers: report ? (lastSubmission ?? answers) : answers,
+    answers,
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -260,7 +290,6 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      setLastSubmission({ ...answers });
       const result = await generateReport({ company_name: companyName, sector, answers });
       setReport(result);
     } catch (err) {
@@ -295,7 +324,7 @@ export default function App() {
         {report ? (
           <ReportView
             report={report}
-            onStartOver={() => setReport(null)}
+            onStartOver={handleStartOver}
             onDownload={handleDownload}
             downloading={downloading}
           />
@@ -312,7 +341,7 @@ export default function App() {
               </div>
             </header>
 
-            <form className="questionnaire-form" onSubmit={handleSubmit}>
+            <form key={formKey} className="questionnaire-form" onSubmit={handleSubmit}>
               <section className="card form-card">
                 <h2>Your business</h2>
                 <div className="field-grid">
@@ -354,7 +383,7 @@ export default function App() {
                         <QuestionField
                           question={q}
                           value={answers[q.id]}
-                          onChange={(val) => setAnswers((prev) => ({ ...prev, [q.id]: val }))}
+                          onChange={(val) => updateAnswer(q.id, val)}
                         />
                       </fieldset>
                     ))}

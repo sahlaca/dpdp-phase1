@@ -7,7 +7,8 @@ from app.sources.catalog import get_catalog
 
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
-    obligations = evaluate_obligations(submission.answers)
+    all_obligations = evaluate_obligations(submission.answers)
+    obligations = [o for o in all_obligations if o.status != ComplianceStatus.NOT_APPLICABLE]
     catalog = get_catalog()
 
     gaps = [o for o in obligations if o.status in (ComplianceStatus.NOT_MET, ComplianceStatus.PARTIAL)]

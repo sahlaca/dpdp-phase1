@@ -44,6 +44,61 @@ def _na(msg: str, action: str = "No action required unless practices change.") -
     return ComplianceStatus.NOT_APPLICABLE, msg, action
 
 
+def _any_key_answered(answers: dict[str, Any], keys: list[str]) -> bool:
+    return any(k in answers for k in keys)
+
+
+# Questionnaire keys that drive scoring — if none are answered, obligation is not assessed.
+OBLIGATION_QUESTIONS: dict[str, list[str]] = {
+    "scope_digital_personal_data": ["data_form", "collects_personal_data"],
+    "lawful_basis_consent": ["processing_basis", "consent_practice"],
+    "lawful_basis_legitimate_use": ["processing_basis", "legitimate_use_documented"],
+    "purpose_limitation": ["purpose_documented"],
+    "notice_to_principal": ["has_privacy_notice"],
+    "notice_required_elements": ["has_privacy_notice", "notice_elements"],
+    "consent_specific_informed": ["consent_practice", "processing_basis"],
+    "consent_records": ["consent_records"],
+    "consent_withdrawal": ["consent_withdrawal"],
+    "consent_manager_readiness": ["consent_manager_plan"],
+    "data_accuracy": ["data_accuracy_process"],
+    "retention_erasure": ["retention_policy"],
+    "erasure_pre_notification": ["retention_policy"],
+    "deletion_on_withdrawal": ["consent_withdrawal", "retention_policy"],
+    "right_of_access": ["data_principal_requests"],
+    "right_of_correction": ["correction_process"],
+    "right_of_erasure": ["erasure_process"],
+    "right_of_grievance": ["grievance_officer"],
+    "right_of_nomination": ["nomination_supported"],
+    "rights_request_verification": ["identity_verification"],
+    "rights_response_timeline": ["rights_timeline"],
+    "contact_publication": ["contact_published"],
+    "grievance_officer_appointed": ["grievance_officer"],
+    "processor_contracts": ["uses_processors", "processor_agreements"],
+    "processor_oversight": ["uses_processors", "processor_monitoring"],
+    "cross_border_transfer": ["cross_border_transfer", "transfer_country_check"],
+    "security_safeguards": ["security_safeguards"],
+    "security_logging": ["security_safeguards"],
+    "breach_response_plan": ["breach_response"],
+    "breach_notify_board": ["breach_response", "breach_board_process"],
+    "breach_notify_principals": ["breach_response", "breach_principal_process"],
+    "children_verifiable_consent": ["parental_consent", "data_types"],
+    "children_no_harmful_tracking": ["children_tracking_ads", "data_types"],
+    "sdf_assessment": ["estimated_data_subjects", "data_types"],
+    "sdf_dpo_appointment": ["sdf_preparation"],
+    "sdf_dpia": ["sdf_preparation"],
+    "sdf_audit": ["sdf_preparation"],
+    "employee_data_safeguards": ["collects_employee_data", "employee_data_safeguards"],
+    "cctv_processing": ["cctv_notice", "data_types"],
+}
+
+
+def _not_assessed() -> tuple[ComplianceStatus, str, str]:
+    return _na(
+        "Related questionnaire items not answered.",
+        "Complete the relevant questions to assess this obligation.",
+    )
+
+
 def _not_processing(obligation_id: str) -> tuple[ComplianceStatus, str, str] | None:
     if obligation_id == "scope_digital_personal_data":
         return None
@@ -59,6 +114,10 @@ def score_obligation(obligation_id: str, answers: dict[str, Any]) -> tuple[Compl
             return skip
         if obligation_id == "scope_digital_personal_data":
             return _na("No digital personal data processing reported.", "Confirm whether any data is digitised..")
+
+    qkeys = OBLIGATION_QUESTIONS.get(obligation_id)
+    if qkeys and not _any_key_answered(answers, qkeys):
+        return _not_assessed()
 
     # --- Scope ---
     if obligation_id == "scope_digital_personal_data":
