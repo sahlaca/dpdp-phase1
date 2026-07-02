@@ -15,7 +15,7 @@ docker compose up --build
 
 Wait until you see the backend health check pass, then open:
 
-**http://localhost:8080**
+**http://localhost:8888**
 
 ## Stop the app
 
@@ -26,7 +26,7 @@ docker compose down
 ## Architecture
 
 ```
-Browser → http://localhost:8080
+Browser → http://localhost:8888
               ↓
          nginx (frontend container)
               ├── /        → React app (static files)
@@ -42,7 +42,7 @@ Browser → http://localhost:8080
 1. Zip the `dpdp-phase1` folder (include `data/sources/` PDFs)
 2. CEO installs Docker Desktop
 3. CEO runs `docker compose up --build`
-4. Opens http://localhost:8080
+4. Opens http://localhost:8888
 
 **Option B — You host it**
 
@@ -52,7 +52,7 @@ Deploy the same `docker compose` to a small cloud VM (DigitalOcean, AWS, etc.) a
 
 | Issue | Fix |
 |-------|-----|
-| Port 8080 in use | Change `8080:80` to `8888:80` in `docker-compose.yml` |
+| Port 8888 in use | Change `8888:80` to another host port (e.g. `9090:80`) in `docker-compose.yml` |
 | PDFs missing | Ensure `data/sources/*.pdf` exist; run `python backend/scripts/download_sources.py` |
 | Build slow first time | Normal — subsequent starts are faster |
 | `data/corpus/chunks.json` missing | Run `python backend/scripts/ingest_corpus.py` before dockerizing |

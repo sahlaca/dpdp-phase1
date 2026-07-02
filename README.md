@@ -21,7 +21,7 @@ dpdp-phase1/
 docker compose up --build
 ```
 
-Open **http://localhost:8080** — see [DOCKER.md](./DOCKER.md) for full instructions.
+Open **http://localhost:8888** — see [DOCKER.md](./DOCKER.md) for full instructions.
 
 ### Local development
 

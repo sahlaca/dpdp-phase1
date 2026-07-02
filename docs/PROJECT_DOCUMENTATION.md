@@ -445,7 +445,7 @@ Interactive docs (local dev): http://localhost:8000/docs
 docker compose up --build
 ```
 
-Access: **http://localhost:8080**
+Access: **http://localhost:8888**
 
 See [DOCKER.md](../DOCKER.md) for details.
 

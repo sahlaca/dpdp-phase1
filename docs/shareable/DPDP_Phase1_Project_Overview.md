@@ -191,7 +191,7 @@ This is the complete journey from a business user's perspective:
 │  ┌─────────────────┐    ┌──────────────────┐  │
 │  │ Frontend        │    │ Backend          │  │
 │  │ (nginx + React) │───▶│ (FastAPI)        │  │
-│  │ Port: 8080      │    │ Port: 8000       │  │
+│  │ Port: 8888      │    │ Port: 8000       │  │
 │  └─────────────────┘    └────────┬─────────┘  │
 │                                 │             │
 │                        ┌────────▼─────────┐  │
@@ -424,7 +424,7 @@ Users can verify every recommendation against the original legal text — critic
 
 The application runs as two containerized services:
 
-- **Frontend container** — nginx serving the React app on port 8080  
+- **Frontend container** — nginx serving the React app on port 8888  
 - **Backend container** — FastAPI API with legal data volume mounted  
 
 Single URL access for demos and presentations. Suitable for on-premise pilot, private cloud, or internal network deployment.

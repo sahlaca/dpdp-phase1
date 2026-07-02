@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 ENV DATA_DIR=/app/data
-ENV FRONTEND_ORIGIN=http://localhost:8080
+ENV FRONTEND_ORIGIN=http://localhost:8888
 
 EXPOSE 8000
 

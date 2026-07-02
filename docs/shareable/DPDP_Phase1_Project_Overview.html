@@ -322,7 +322,7 @@
 │  ┌─────────────────┐    ┌──────────────────┐  │
 │  │ Frontend        │    │ Backend          │  │
 │  │ (nginx + React) │───▶│ (FastAPI)        │  │
-│  │ Port: 8080      │    │ Port: 8000       │  │
+│  │ Port: 8888      │    │ Port: 8000       │  │
 │  └─────────────────┘    └────────┬─────────┘  │
 │                                 │             │
 │                        ┌────────▼─────────┐  │
@@ -726,7 +726,7 @@ OUTPUT: JSON report → Screen display / PDF download</code></pre>
 <h2 id="deployment-model">14. Deployment model</h2>
 <p>The application runs as two containerized services:</p>
 <ul>
-<li><strong>Frontend container</strong> — nginx serving the React app on port 8080<br />
+<li><strong>Frontend container</strong> — nginx serving the React app on port 8888<br />
 </li>
 <li><strong>Backend container</strong> — FastAPI API with legal data volume mounted</li>
 </ul>
