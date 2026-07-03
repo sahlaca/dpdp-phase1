@@ -1,6 +1,14 @@
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse, Response
+from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse, Response
+from sqlalchemy.orm import Session
+
+from app.auth.deps import get_current_user
+from app.db.database import get_db
+from app.db.models import SavedReport, User
 from app.questionnaire.schema import QuestionnaireSubmission
 from app.reports.export import render_html_report, render_pdf_report
 from app.reports.generator import generate_gap_report
@@ -13,20 +21,44 @@ def _safe_filename(company_name: str, ext: str) -> str:
     return f"DPDP_Gap_Report_{safe}.{ext}"
 
 
+def _persist_report(db: Session, user: User, submission: QuestionnaireSubmission, report: dict) -> None:
+    db.add(
+        SavedReport(
+            user_id=user.id,
+            company_name=submission.company_name,
+            sector=submission.sector,
+            submission=submission.model_dump(),
+            report=report,
+        )
+    )
+    db.commit()
+
+
 @router.post("/reports/generate")
-def create_report(submission: QuestionnaireSubmission) -> dict:
+def create_report(
+    submission: QuestionnaireSubmission,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
     """Score obligations and return a structured compliance gap report."""
     try:
         report = generate_gap_report(submission)
     except NotImplementedError as exc:
         raise HTTPException(status_code=501, detail=str(exc)) from exc
+    _persist_report(db, user, submission, report)
     return report
 
 
 @router.post("/reports/download")
-def download_report_pdf(submission: QuestionnaireSubmission, request: Request) -> Response:
+def download_report_pdf(
+    submission: QuestionnaireSubmission,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
     """Generate and download a professional PDF compliance report."""
     report = generate_gap_report(submission)
+    _persist_report(db, user, submission, report)
     base_url = str(request.base_url).rstrip("/")
 
     try:
@@ -44,9 +76,15 @@ def download_report_pdf(submission: QuestionnaireSubmission, request: Request) -
 
 
 @router.post("/reports/download/html")
-def download_report_html(submission: QuestionnaireSubmission, request: Request) -> HTMLResponse:
+def download_report_html(
+    submission: QuestionnaireSubmission,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
     """Generate and download an HTML version of the report (optional)."""
     report = generate_gap_report(submission)
+    _persist_report(db, user, submission, report)
     base_url = str(request.base_url).rstrip("/")
     html = render_html_report(report, base_url=base_url, for_pdf=False)
 

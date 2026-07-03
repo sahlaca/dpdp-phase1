@@ -10,8 +10,14 @@ One command starts the full app. Your CEO opens **one URL** in the browser.
 
 ```bash
 cd dpdp-phase1
+cp .env.example .env
+# Generate secrets (run each command and paste into .env):
+#   openssl rand -hex 32   → JWT_SECRET
+#   openssl rand -hex 24   → POSTGRES_PASSWORD
 docker compose up --build
 ```
+
+PostgreSQL data persists in the `postgres_data` Docker volume across restarts.
 
 Wait until you see the backend health check pass, then open:
 

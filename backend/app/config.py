@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     frontend_origin: str = "http://localhost:5173"
     data_dir: Path = Path(__file__).resolve().parents[2] / "data"
+    database_url: str = "postgresql+psycopg2://dpdp:dpdp_secret@localhost:5432/dpdp"
+    jwt_secret: str = "change-me-in-production"
+    jwt_expire_hours: int = 72
 
     @computed_field  # type: ignore[prop-decorator]
     @property

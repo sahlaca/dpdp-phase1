@@ -1,13 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, questionnaire, reports, sources
+from app.api import auth, health, questionnaire, reports, sources
 from app.config import settings
+from app.db.database import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 
 app = FastAPI(
     title="DPDP Compliance Guidance API",
     description="Phase 1: questionnaire intake, obligation scoring, and gap report generation.",
-    version="0.1.0",
+    version="0.2.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -19,6 +30,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, tags=["health"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(questionnaire.router, prefix="/api/v1", tags=["questionnaire"])
 app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
 app.include_router(sources.router, prefix="/api/v1", tags=["sources"])

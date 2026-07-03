@@ -1,16 +1,87 @@
+import type { AuthUser } from "./auth";
+import { authHeaders } from "./auth";
 import type { GapReport, LegalSource, QuestionnaireResponse, SourcesCatalog } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
+async function apiFetch(path: string, init: RequestInit = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(),
+      ...(init.headers ?? {}),
+    },
+  });
+  if (res.status === 401) {
+    throw new Error("Session expired. Please sign in again.");
+  }
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const detail = body.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join(", ")
+          : `Request failed (${res.status})`;
+    throw new Error(message || `Request failed (${res.status})`);
+  }
+  return res;
+}
+
+export async function login(email: string, password: string): Promise<{ access_token: string; user: AuthUser }> {
+  const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const detail = body.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join(", ")
+          : "Login failed";
+    throw new Error(message);
+  }
+  return res.json();
+}
+
+export async function register(payload: {
+  email: string;
+  password: string;
+  full_name: string;
+  company_name?: string;
+}): Promise<{ access_token: string; user: AuthUser }> {
+  const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const detail = body.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join(", ")
+          : "Registration failed";
+    throw new Error(message);
+  }
+  return res.json();
+}
+
 export async function fetchQuestionnaire(): Promise<QuestionnaireResponse> {
-  const res = await fetch(`${API_BASE}/api/v1/questionnaire`);
-  if (!res.ok) throw new Error("Failed to load questionnaire");
+  const res = await apiFetch("/api/v1/questionnaire");
   return res.json();
 }
 
 export async function fetchSources(): Promise<SourcesCatalog> {
-  const res = await fetch(`${API_BASE}/api/v1/sources`);
-  if (!res.ok) throw new Error("Failed to load legal sources");
+  const res = await apiFetch("/api/v1/sources");
   return res.json();
 }
 
@@ -23,12 +94,10 @@ export async function generateReport(payload: {
   sector: string;
   answers: Record<string, unknown>;
 }): Promise<GapReport> {
-  const res = await fetch(`${API_BASE}/api/v1/reports/generate`, {
+  const res = await apiFetch("/api/v1/reports/generate", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to generate report");
   return res.json();
 }
 
@@ -37,13 +106,29 @@ export async function downloadReport(payload: {
   sector: string;
   answers: Record<string, unknown>;
 }): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/api/v1/reports/download`, {
+  const res = await apiFetch("/api/v1/reports/download", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to download report");
   return res.blob();
+}
+
+export interface ReportHistoryItem {
+  id: number;
+  company_name: string;
+  sector: string;
+  generated_at: string;
+  summary: GapReport["summary"];
+}
+
+export async function fetchReportHistory(): Promise<ReportHistoryItem[]> {
+  const res = await apiFetch("/api/v1/auth/reports");
+  return res.json();
+}
+
+export async function fetchSavedReport(id: number): Promise<GapReport> {
+  const res = await apiFetch(`/api/v1/auth/reports/${id}`);
+  return res.json();
 }
 
 export type { LegalSource };

@@ -148,12 +148,17 @@ def _report_styles(for_pdf: bool) -> str:
     .summary-intro strong {{
       color: #1e40af;
     }}
+    .summary-wrap {{
+      display: flex;
+      justify-content: center;
+      margin: 0 0 0.5rem;
+    }}
     .summary-table {{
       width: 100%;
+      max-width: 520px;
       border-collapse: separate;
       border-spacing: 8px;
       table-layout: fixed;
-      margin: 0 0 0.5rem;
     }}
     .summary-table td.stat {{
       background: #f8fafc;
@@ -418,6 +423,7 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   </div>
 
   <h2 class="section-title">Executive summary</h2>
+  <div class="summary-wrap">
   <table class="summary-table">
     <tr>
       <td class="stat">
@@ -434,6 +440,7 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
       </td>
     </tr>
   </table>
+  </div>
   <div class="summary-intro">{escape(report.get("obligation_explainer", ""))}</div>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem;line-height:1.5">
     {escape(report.get("summary_note", ""))}
@@ -449,16 +456,16 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   {plan_html}
 
   <div class="page-break"></div>
+  <h2 class="section-title">Legal source documents</h2>
+  <p style="font-size:9pt;color:#64748b">Primary and secondary sources used to ground this assessment.</p>
+  <ul class="sources-list">{sources_html}</ul>
+
+  <div class="page-break"></div>
   <h2 class="section-title">Detailed obligation assessment</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
     Obligations assessed from your answers. Items marked Not Answered need questionnaire input.
   </p>
   {obligations_html}
-
-  <div class="page-break"></div>
-  <h2 class="section-title">Legal source documents</h2>
-  <p style="font-size:9pt;color:#64748b">Primary and secondary sources used to ground this assessment.</p>
-  <ul class="sources-list">{sources_html}</ul>
 
   <div class="page-break"></div>
   <h2 class="section-title">Questionnaire responses</h2>
