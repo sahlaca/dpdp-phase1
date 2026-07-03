@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { downloadReport, fetchQuestionnaire, fetchSources, generateReport } from "./api";
 import type { AuthUser } from "./auth";
-import { clearAuth } from "./auth";
+import { clearAuth, welcomeDisplayName } from "./auth";
 import { LegalSourcesPanel } from "./LegalSourcesPanel";
 import { QuestionnaireForm, type Answers } from "./QuestionnaireForm";
 import { ReportHistory } from "./ReportHistory";
@@ -100,6 +100,8 @@ export function MainApp({ user, onLogout }: { user: AuthUser; onLogout: () => vo
     { id: "history", label: "Report history" },
   ];
 
+  const welcomeName = welcomeDisplayName(user);
+
   return (
     <div className="app-layout">
       <header className="topbar">
@@ -136,7 +138,9 @@ export function MainApp({ user, onLogout }: { user: AuthUser; onLogout: () => vo
           <div className="overview-panel">
             <header className="page-header compact">
               <div>
-                <p className="eyebrow">Welcome back</p>
+                <p className="eyebrow">
+                  {welcomeName ? `Welcome, ${welcomeName}` : "Welcome"}
+                </p>
                 <h1>DPDP Readiness Assessment</h1>
                 <p className="subtitle">
                   A structured way for Indian SMEs to understand DPDP Act 2023 and Rules 2025

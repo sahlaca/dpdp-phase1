@@ -32,6 +32,15 @@ export function clearAuth(): void {
   localStorage.removeItem(USER_KEY);
 }
 
+/** First name, or company name if no personal name is stored. */
+export function welcomeDisplayName(user: AuthUser): string | null {
+  const fullName = user.full_name?.trim();
+  if (fullName) return fullName.split(/\s+/)[0];
+  const company = user.company_name?.trim();
+  if (company) return company;
+  return null;
+}
+
 export function authHeaders(): HeadersInit {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
