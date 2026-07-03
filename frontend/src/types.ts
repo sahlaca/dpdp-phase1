@@ -105,6 +105,7 @@ export interface GapReport {
     items: string[];
   }>;
   disclaimer: string;
-  summary_note?: string;
   obligation_explainer?: string;
+  obligation_assessment_intro?: string;
+  obligation_relationship_note?: string;
 }

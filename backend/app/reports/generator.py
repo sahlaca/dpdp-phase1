@@ -13,6 +13,15 @@ OBLIGATION_EXPLAINER = (
     "business practices; this report shows which requirements apply to you and whether you meet them."
 )
 
+OBLIGATION_ASSESSMENT_INTRO = (
+    "Obligations assessed from your answers. Items marked Not Answered need questionnaire input."
+)
+
+OBLIGATION_RELATIONSHIP_NOTE = (
+    "Questions and obligations are separate: several questions can inform one obligation, "
+    "and one obligation may need answers to multiple questions."
+)
+
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     all_obligations = evaluate_obligations(submission.answers)
@@ -36,15 +45,6 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     obligations_assessed = len(assessed)
     obligations_pending = len(not_answered)
     obligations_in_scope = len(obligations)
-
-    summary_note = (
-        f"{questions_answered} of {questions_total} questionnaire responses recorded. "
-        f"Gap analysis reflects recorded responses only. "
-        f"{obligations_assessed} of {obligations_in_scope} applicable obligations were assessed; "
-        f"{obligations_pending} require additional questionnaire input before scoring. "
-        f"Questions and obligations are separate: several questions can inform one obligation, "
-        f"and one obligation may need answers to multiple questions."
-    )
 
     # Collect unique source IDs referenced across obligations
     referenced_source_ids: set[str] = set()
@@ -91,8 +91,9 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
             "obligations_not_answered": obligations_pending,
             "obligations_in_scope": obligations_in_scope,
         },
-        "summary_note": summary_note,
         "obligation_explainer": OBLIGATION_EXPLAINER,
+        "obligation_assessment_intro": OBLIGATION_ASSESSMENT_INTRO,
+        "obligation_relationship_note": OBLIGATION_RELATIONSHIP_NOTE,
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,
         "questionnaire_responses": questionnaire_responses,

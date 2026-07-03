@@ -21,6 +21,24 @@ export function ReportView({
     return map;
   }, [report.obligations]);
 
+  const sourceTitles = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const s of report.legal_sources) {
+      map.set(s.id, s.title);
+    }
+    return map;
+  }, [report.legal_sources]);
+
+  function citationSourceLabel(sourceId: string): string {
+    return sourceTitles.get(sourceId) ?? sourceId.replace(/_/g, " ");
+  }
+
+  function citationDownloadUrl(citation: GapReport["obligations"][number]["citations"][number]): string {
+    if (citation.download_url.startsWith("http")) return citation.download_url;
+    if (citation.download_url.startsWith("/")) return citation.download_url;
+    return sourceDownloadUrl(citation.source_id);
+  }
+
   const questionsBySection = useMemo(() => {
     const map: Record<string, NonNullable<GapReport["questionnaire_responses"]>> = {};
     for (const q of report.questionnaire_responses ?? []) {
@@ -57,32 +75,28 @@ export function ReportView({
         </div>
       </header>
 
-      <div className="summary-wrap">
-        <section className="card summary-card">
-          <div className="stat">
-            <span className="stat-value">
-              {report.summary.obligations_assessed ?? report.summary.total_obligations}
-            </span>
-            <span className="stat-label">Obligations assessed</span>
-          </div>
-          <div className="stat">
-            <span className="stat-value">{report.summary.gaps_found}</span>
-            <span className="stat-label">Gaps identified</span>
-          </div>
-          <div className="stat">
-            <span className="stat-value critical">{report.summary.critical_gaps}</span>
-            <span className="stat-label">Critical gaps</span>
-          </div>
-        </section>
-      </div>
+      <h2 className="section-title">Executive summary</h2>
+      <section className="card summary-card">
+        <div className="stat">
+          <span className="stat-value">
+            {report.summary.obligations_assessed ?? report.summary.total_obligations}
+          </span>
+          <span className="stat-label">Obligations assessed</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">{report.summary.gaps_found}</span>
+          <span className="stat-label">Gaps identified</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value critical">{report.summary.critical_gaps}</span>
+          <span className="stat-label">Critical gaps</span>
+        </div>
+      </section>
 
       {report.obligation_explainer && <p className="summary-intro">{report.obligation_explainer}</p>}
-      <p className="summary-hint">
-        {report.summary_note ?? "Gap analysis reflects recorded questionnaire responses only."}
-      </p>
 
       <section className="card">
-        <h2>Regulatory timeline</h2>
+        <h2 className="section-title in-card">Regulatory timeline</h2>
         <div className="timeline">
           {report.regulatory_timeline.map((t) => (
             <div key={t.phase} className="timeline-item">
@@ -97,7 +111,7 @@ export function ReportView({
       </section>
 
       <section className="card">
-        <h2>Prioritized action plan</h2>
+        <h2 className="section-title in-card">Prioritized action plan</h2>
         {report.prioritized_action_plan.map((phase) => (
           <div key={phase.phase} className="phase-block">
             <h3>
@@ -115,7 +129,7 @@ export function ReportView({
 
       {report.legal_sources.length > 0 && (
         <section className="card">
-          <h2>Legal source documents</h2>
+          <h2 className="section-title in-card">Legal source documents</h2>
           <p className="section-note">Primary and secondary sources used to ground this assessment.</p>
           <ul className="report-sources-list">
             {report.legal_sources
@@ -138,46 +152,62 @@ export function ReportView({
         </section>
       )}
 
-      {Object.entries(byCategory).map(([category, obligations]) => (
-        <section key={category} className="card">
-          <h2>{category}</h2>
-          {obligations.map((o) => (
-            <article key={o.id} className={`obligation status-${o.status}`}>
-              <div className="obligation-header">
-                <h3>{o.title}</h3>
-                <span className="status-badge">{o.status.replace(/_/g, " ")}</span>
-              </div>
-              <p className="refs">
-                {o.act_sections.join(" · ")} · {o.rule_references.join(" · ")} · Due {o.deadline}
-              </p>
-              <p className="desc">{o.description}</p>
-              <p>{o.gap_summary}</p>
-              <p className="action">
-                <strong>Action:</strong> {o.recommended_action}
-              </p>
-              {o.citations.length > 0 && (
-                <div className="citations">
-                  {o.citations.map((c) => (
-                    <blockquote key={c.chunk_id}>
-                      <p>"{c.excerpt}"</p>
-                      <a href={c.download_url} download>
-                        Verify in source PDF ↓
-                      </a>
-                    </blockquote>
-                  ))}
-                </div>
-              )}
-            </article>
+      {Object.keys(byCategory).length > 0 && (
+        <section className="card obligations-section">
+          <h2 className="section-title in-card">Detailed obligation assessment</h2>
+          <p className="section-note">
+            {report.obligation_assessment_intro ??
+              "Obligations assessed from your answers. Items marked Not Answered need questionnaire input."}
+          </p>
+          {report.obligation_relationship_note && (
+            <p className="obligation-scope-note">{report.obligation_relationship_note}</p>
+          )}
+          {Object.entries(byCategory).map(([category, obligations]) => (
+            <div key={category} className="obligation-category">
+              <h3 className="category-heading">{category}</h3>
+              {obligations.map((o) => (
+                <article key={o.id} className={`obligation status-${o.status}`}>
+                  <div className="obligation-header">
+                    <h4>{o.title}</h4>
+                    <span className="status-badge">{o.status.replace(/_/g, " ")}</span>
+                  </div>
+                  <p className="refs">
+                    {o.act_sections.join(" · ")} · {o.rule_references.join(" · ")} · Due {o.deadline}
+                  </p>
+                  <p className="desc">{o.description}</p>
+                  <p className="gap-summary">{o.gap_summary}</p>
+                  <p className="action">
+                    <strong>Action:</strong> {o.recommended_action}
+                  </p>
+                  {o.citations.length > 0 && (
+                    <div className="citations">
+                      {o.citations.map((c) => (
+                        <blockquote key={c.chunk_id}>
+                          <p>"{c.excerpt}"</p>
+                          <p className="citation-source">
+                            Source: {citationSourceLabel(c.source_id)} —{" "}
+                            <a href={citationDownloadUrl(c)} download>
+                              Download source PDF
+                            </a>
+                          </p>
+                        </blockquote>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
           ))}
         </section>
-      ))}
+      )}
 
       {Object.keys(questionsBySection).length > 0 && (
         <section className="card">
-          <h2>Questionnaire responses</h2>
+          <h2 className="section-title in-card">Questionnaire responses</h2>
           <p className="section-note">
-            Complete record of your assessment answers for reference. Items without a response are
-            marked <em>Not answered</em>.
+            Complete record of your assessment answers for reference. Items without a recorded response are
+            marked <em>Not answered</em>. ({report.summary.questions_answered ?? 0} of{" "}
+            {report.summary.questions_total ?? 0} responses recorded)
           </p>
           {Object.entries(questionsBySection).map(([section, questions]) => (
             <div key={section} className="questionnaire-section">

@@ -6,6 +6,7 @@ import { LegalSourcesPanel } from "./LegalSourcesPanel";
 import { QuestionnaireForm, type Answers } from "./QuestionnaireForm";
 import { ReportHistory } from "./ReportHistory";
 import { ReportView } from "./ReportView";
+import { APP_DISCLAIMER, APP_FEATURES, APP_TAGLINE, DPDP_FULL_NAME } from "./appContent";
 import type { GapReport, LegalSource, QuestionnaireResponse } from "./types";
 
 type Tab = "overview" | "assessment" | "sources" | "report" | "history";
@@ -104,7 +105,10 @@ export function MainApp({ user, onLogout }: { user: AuthUser; onLogout: () => vo
       <header className="topbar">
         <div className="topbar-brand">
           <span className="brand-mark">DPDP</span>
-          <span className="brand-text">Compliance Guidance</span>
+          <div className="brand-copy">
+            <span className="brand-text">Compliance Guidance</span>
+            <span className="brand-subtitle">{DPDP_FULL_NAME}</span>
+          </div>
         </div>
         <nav className="tab-nav">
           {tabs.map((t) => (
@@ -133,13 +137,19 @@ export function MainApp({ user, onLogout }: { user: AuthUser; onLogout: () => vo
             <header className="page-header compact">
               <div>
                 <p className="eyebrow">Welcome back</p>
-                <h1>DPDP readiness assessment</h1>
+                <h1>DPDP Readiness Assessment</h1>
                 <p className="subtitle">
                   A structured way for Indian SMEs to understand DPDP Act 2023 and Rules 2025
                   obligations, identify gaps, and plan next steps before the May 2027 deadline.
                 </p>
               </div>
+              <div className="header-actions">
+                <button className="btn" type="button" onClick={() => setTab("assessment")}>
+                  Start assessment →
+                </button>
+              </div>
             </header>
+
             <div className="overview-grid">
               <section className="card">
                 <h2>How it works</h2>
@@ -158,9 +168,18 @@ export function MainApp({ user, onLogout }: { user: AuthUser; onLogout: () => vo
                 </ul>
               </section>
             </div>
-            <button className="btn" type="button" onClick={() => setTab("assessment")}>
-              Start assessment →
-            </button>
+
+            <section className="overview-about">
+              <p className="overview-about-eyebrow">About this tool</p>
+              <h2>{DPDP_FULL_NAME}</h2>
+              <p className="overview-about-lead">{APP_TAGLINE}</p>
+              <ul className="overview-about-features">
+                {APP_FEATURES.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+              <p className="overview-about-note">{APP_DISCLAIMER}</p>
+            </section>
           </div>
         )}
 

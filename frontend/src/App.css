@@ -64,6 +64,22 @@ body {
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--text);
+  display: block;
+  line-height: 1.2;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.brand-subtitle {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.2;
+  max-width: 220px;
 }
 
 .tab-nav {
@@ -215,11 +231,59 @@ body {
 }
 
 /* Overview & sources */
+.overview-about {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+  margin-top: 0.5rem;
+}
+
+.overview-about-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+.overview-about h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: #1e3a8a;
+}
+
+.overview-about-lead {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: #334155;
+  line-height: 1.55;
+  max-width: 720px;
+}
+
+.overview-about-features {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  line-height: 1.65;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.overview-about-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  font-style: italic;
+}
+
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .steps-list {
@@ -230,7 +294,7 @@ body {
 }
 
 .page-header.compact {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .sources-panel {
@@ -317,16 +381,77 @@ body {
   margin-bottom: 1rem;
 }
 
-.summary-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
+/* Summary stats — full width card, centered content in each box */
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
 }
 
-.summary-wrap .summary-card {
+.stat {
+  text-align: center;
+  min-height: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.stat-value,
+.stat-label {
   width: 100%;
-  max-width: 720px;
-  margin-bottom: 0;
+  text-align: center;
+}
+
+.report-view .section-title {
+  font-size: 1.05rem;
+  color: var(--primary);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.35rem;
+  margin: 1.75rem 0 1rem;
+  font-weight: 600;
+}
+
+.report-view .section-title.in-card {
+  margin-top: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0.75rem;
+}
+
+.obligations-section .category-heading {
+  font-size: 0.95rem;
+  color: var(--primary);
+  background: #eff6ff;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  margin: 1.25rem 0 0.75rem;
+  font-weight: 600;
+}
+
+.obligation-category:first-of-type .category-heading {
+  margin-top: 0.5rem;
+}
+
+.obligation-scope-note {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.gap-summary {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
 }
 
 .report-sources-list {
@@ -508,24 +633,6 @@ body {
 }
 
 /* Summary */
-.summary-card {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.stat {
-  text-align: center;
-  min-height: 5.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0.75rem 0.5rem;
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
 .stat-value {
   display: block;
   font-size: 2rem;
@@ -822,7 +929,8 @@ label {
   gap: 0.75rem;
 }
 
-.obligation h3 {
+.obligation h3,
+.obligation h4 {
   margin: 0;
   font-size: 0.95rem;
 }
@@ -860,6 +968,13 @@ label {
 .citations blockquote p {
   margin: 0 0 0.3rem;
   font-style: italic;
+}
+
+.citation-source {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: normal;
 }
 
 .citations a {
@@ -915,6 +1030,15 @@ label {
 
   .main-content {
     padding: 1.25rem;
+  }
+
+  .topbar-brand {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .brand-subtitle {
+    max-width: none;
   }
 
   .field-grid,

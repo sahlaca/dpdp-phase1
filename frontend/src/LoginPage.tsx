@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { login, register } from "./api";
+import { APP_DISCLAIMER, APP_FEATURES, APP_TAGLINE } from "./appContent";
 import { setAuth, type AuthUser } from "./auth";
-
-const FEATURES = [
-  "Personalized gap report aligned to DPDP Act 2023 and Rules 2025",
-  "39 regulatory obligations assessed from your answers",
-  "Official legal source PDFs with citation verification",
-  "Professional PDF export for internal sharing",
-  "Secure report history saved to your account",
-];
 
 export function LoginPage({ onSuccess }: { onSuccess: (user: AuthUser) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -47,19 +40,13 @@ export function LoginPage({ onSuccess }: { onSuccess: (user: AuthUser) => void }
       <section className="login-hero">
         <p className="eyebrow">DPDP Compliance Guidance</p>
         <h1>Understand your DPDP obligations in minutes</h1>
-        <p className="login-lead">
-          Built for Indian small and medium businesses. Answer a structured questionnaire and
-          receive a personalized compliance gap report grounded in the DPDP Act 2023 and Rules 2025.
-        </p>
+        <p className="login-lead">{APP_TAGLINE}</p>
         <ul className="login-features">
-          {FEATURES.map((f) => (
+          {APP_FEATURES.map((f) => (
             <li key={f}>{f}</li>
           ))}
         </ul>
-        <p className="login-note">
-          Phase 1 provides readiness assessment and an action plan — not legal advice. Consult
-          qualified counsel for regulatory decisions.
-        </p>
+        <p className="login-note">{APP_DISCLAIMER}</p>
       </section>
 
       <section className="login-panel card">

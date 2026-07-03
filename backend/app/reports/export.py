@@ -148,27 +148,28 @@ def _report_styles(for_pdf: bool) -> str:
     .summary-intro strong {{
       color: #1e40af;
     }}
-    .summary-wrap {{
-      display: flex;
-      justify-content: center;
-      margin: 0 0 0.5rem;
-    }}
-    .summary-table {{
+    .summary-card {{
       width: 100%;
-      max-width: 520px;
-      border-collapse: separate;
-      border-spacing: 8px;
-      table-layout: fixed;
+      margin: 0 0 0.75rem;
+      padding: 0;
     }}
-    .summary-table td.stat {{
+    .summary-row {{
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }}
+    .summary-row .stat {{
+      display: table-cell;
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 4px solid #fff;
       border-radius: 8px;
-      padding: 0.85rem 0.4rem;
+      padding: 0.85rem 0.5rem;
       text-align: center;
       vertical-align: middle;
       width: 33.33%;
       height: 4.25rem;
+      box-sizing: border-box;
     }}
     .stat-value {{
       font-size: 20pt;
@@ -317,6 +318,10 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
     generated = escape(_fmt_date(report.get("generated_at", "")))
     summary = report.get("summary", {})
     disclaimer = escape(report.get("disclaimer", ""))
+    source_titles = {
+        s.get("id", ""): s.get("title", s.get("id", "").replace("_", " "))
+        for s in report.get("legal_sources", [])
+    }
 
     obligations_html = ""
     current_category = ""
@@ -335,7 +340,10 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
         citations_html = ""
         for c in ob.get("citations", []):
             excerpt = escape(c.get("excerpt", ""))
-            sid = escape(c.get("source_id", "").replace("_", " "))
+            source_id = c.get("source_id", "")
+            sid = escape(
+                source_titles.get(source_id, source_id.replace("_", " "))
+            )
             dl = f'{base_url}{c.get("download_url", "")}'
             link = f'<a href="{dl}">Download source PDF</a>' if base_url else sid
             citations_html += f"""
@@ -423,28 +431,23 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   </div>
 
   <h2 class="section-title">Executive summary</h2>
-  <div class="summary-wrap">
-  <table class="summary-table">
-    <tr>
-      <td class="stat">
+  <div class="summary-card">
+    <div class="summary-row">
+      <div class="stat">
         <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
         <span class="stat-label">Obligations assessed</span>
-      </td>
-      <td class="stat">
+      </div>
+      <div class="stat">
         <span class="stat-value">{summary.get("gaps_found", 0)}</span>
         <span class="stat-label">Gaps identified</span>
-      </td>
-      <td class="stat">
+      </div>
+      <div class="stat">
         <span class="stat-value critical">{summary.get("critical_gaps", 0)}</span>
         <span class="stat-label">Critical gaps</span>
-      </td>
-    </tr>
-  </table>
+      </div>
+    </div>
   </div>
   <div class="summary-intro">{escape(report.get("obligation_explainer", ""))}</div>
-  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem;line-height:1.5">
-    {escape(report.get("summary_note", ""))}
-  </p>
 
   <h2 class="section-title">Regulatory timeline</h2>
   <table class="timeline-table">
@@ -462,9 +465,10 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
 
   <div class="page-break"></div>
   <h2 class="section-title">Detailed obligation assessment</h2>
-  <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
-    Obligations assessed from your answers. Items marked Not Answered need questionnaire input.
+  <p style="font-size:9pt;color:#64748b;margin-bottom:0.75rem">
+    {escape(report.get("obligation_assessment_intro", ""))}
   </p>
+  <div class="summary-intro">{escape(report.get("obligation_relationship_note", ""))}</div>
   {obligations_html}
 
   <div class="page-break"></div>
