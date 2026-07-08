@@ -186,6 +186,20 @@ export function ReportView({
           {report.obligation_relationship_note && (
             <p className="obligation-scope-note">{report.obligation_relationship_note}</p>
           )}
+          <div className="obligation-field-legend">
+            {(
+              report.obligation_field_legend ?? [
+                "For each obligation below:",
+                "Requirement = What does the law say?",
+                "Assessment = Where do we stand?",
+                "Recommended Action = What should we do now?",
+              ]
+            ).map((line, index) => (
+              <p key={line} className={index === 0 ? "legend-intro" : undefined}>
+                {line}
+              </p>
+            ))}
+          </div>
           {Object.entries(byCategory).map(([category, obligations]) => (
             <div key={category} className="obligation-category">
               <h3 className="category-heading">{category}</h3>
@@ -198,10 +212,14 @@ export function ReportView({
                   <p className="refs">
                     {o.act_sections.join(" · ")} · {o.rule_references.join(" · ")} · Due {o.deadline}
                   </p>
-                  <p className="desc">{o.description}</p>
-                  <p className="gap-summary">{o.gap_summary}</p>
-                  <p className="action">
-                    <strong>Action:</strong> {o.recommended_action}
+                  <p className="ob-field requirement">
+                    <strong>Requirement:</strong> {o.description}
+                  </p>
+                  <p className="ob-field assessment">
+                    <strong>Assessment:</strong> {o.gap_summary}
+                  </p>
+                  <p className="ob-field action">
+                    <strong>Recommended Action:</strong> {o.recommended_action}
                   </p>
                   {o.citations.length > 0 && (
                     <div className="citations">

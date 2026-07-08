@@ -275,6 +275,34 @@ def _report_styles(for_pdf: bool) -> str:
       color: #64748b;
       margin: 0 0 0.35rem;
     }}
+    .ob-field {{
+      margin: 0.3rem 0;
+      font-size: 9.5pt;
+      color: #0f172a;
+      line-height: 1.45;
+    }}
+    .ob-field.requirement {{
+      color: #64748b;
+      font-size: 9pt;
+    }}
+    .field-legend {{
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      margin: 0 0 0.85rem;
+      font-size: 9pt;
+      color: #334155;
+      line-height: 1.5;
+    }}
+    .field-legend p {{
+      margin: 0.15rem 0;
+    }}
+    .field-legend p:first-child {{
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0.35rem;
+    }}
     .obligation p {{ margin: 0.25rem 0; font-size: 9.5pt; }}
     blockquote {{
       margin: 0.4rem 0 0;
@@ -359,8 +387,9 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
             <div class="badge" style="background:{color}">{status_label}</div>
           </div>
           <p class="refs">{" · ".join(ob.get("act_sections", []))} · {" · ".join(ob.get("rule_references", []))} · Due {escape(ob.get("deadline", ""))}</p>
-          <p><strong>Assessment:</strong> {escape(ob.get("gap_summary", ""))}</p>
-          <p><strong>Recommended action:</strong> {escape(ob.get("recommended_action", ""))}</p>
+          <p class="ob-field requirement"><strong>Requirement:</strong> {escape(ob.get("description", ""))}</p>
+          <p class="ob-field"><strong>Assessment:</strong> {escape(ob.get("gap_summary", ""))}</p>
+          <p class="ob-field"><strong>Recommended Action:</strong> {escape(ob.get("recommended_action", ""))}</p>
           {citations_html}
         </div>"""
 
@@ -478,6 +507,14 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
     {escape(report.get("obligation_assessment_intro", ""))}
   </p>
   <div class="summary-intro">{escape(report.get("obligation_relationship_note", ""))}</div>
+  <div class="field-legend">
+    {"".join(f"<p>{escape(line)}</p>" for line in report.get("obligation_field_legend", [
+        "For each obligation below:",
+        "Requirement = What does the law say?",
+        "Assessment = Where do we stand?",
+        "Recommended Action = What should we do now?",
+    ]))}
+  </div>
   {obligations_html}
 
   <p class="disclaimer">{disclaimer}</p>

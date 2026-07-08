@@ -108,4 +108,5 @@ export interface GapReport {
   obligation_explainer?: string;
   obligation_assessment_intro?: string;
   obligation_relationship_note?: string;
+  obligation_field_legend?: string[];
 }

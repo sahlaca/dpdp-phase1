@@ -449,6 +449,52 @@ body {
   line-height: 1.5;
 }
 
+.obligation-field-legend {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.obligation-field-legend p {
+  margin: 0.2rem 0;
+}
+
+.obligation-field-legend p:first-child {
+  margin-top: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.obligation-field-legend p:last-child {
+  margin-bottom: 0;
+}
+
+.ob-field {
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.ob-field.requirement {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.ob-field.assessment {
+  color: #0f172a;
+}
+
+.ob-field.action {
+  color: #0f172a;
+  font-weight: 450;
+}
+
 .gap-summary {
   margin: 0.25rem 0;
   font-size: 0.9rem;
@@ -946,14 +992,9 @@ label {
   color: var(--muted);
 }
 
-.refs,
-.desc {
+.refs {
   font-size: 0.8rem;
   color: var(--muted);
-}
-
-.action {
-  font-size: 0.875rem;
 }
 
 .citations blockquote {

@@ -22,6 +22,13 @@ OBLIGATION_RELATIONSHIP_NOTE = (
     "and one obligation may need answers to multiple questions."
 )
 
+OBLIGATION_FIELD_LEGEND = [
+    "For each obligation below:",
+    "Requirement = What does the law say?",
+    "Assessment = Where do we stand?",
+    "Recommended Action = What should we do now?",
+]
+
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
     all_obligations = evaluate_obligations(submission.answers)
@@ -94,6 +101,7 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
         "obligation_explainer": OBLIGATION_EXPLAINER,
         "obligation_assessment_intro": OBLIGATION_ASSESSMENT_INTRO,
         "obligation_relationship_note": OBLIGATION_RELATIONSHIP_NOTE,
+        "obligation_field_legend": OBLIGATION_FIELD_LEGEND,
         "regulatory_timeline": [p.model_dump() for p in catalog.implementation_phases],
         "legal_sources": sources_for_report,
         "questionnaire_responses": questionnaire_responses,
