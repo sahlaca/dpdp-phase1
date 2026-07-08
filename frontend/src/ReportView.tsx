@@ -52,7 +52,7 @@ export function ReportView({
     <div className="report-view">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Compliance gap report</p>
+          <p className="eyebrow">Compliance Gap Report</p>
           <h1>{report.company_name}</h1>
           <p className="subtitle">
             {report.sector} · Generated{" "}
@@ -75,28 +75,28 @@ export function ReportView({
         </div>
       </header>
 
-      <h2 className="section-title">Executive summary</h2>
+      <h2 className="section-title">Executive Summary</h2>
       <section className="card summary-card">
         <div className="stat">
           <span className="stat-value">
             {report.summary.obligations_assessed ?? report.summary.total_obligations}
           </span>
-          <span className="stat-label">Obligations assessed</span>
+          <span className="stat-label">Obligations Assessed</span>
         </div>
         <div className="stat">
           <span className="stat-value">{report.summary.gaps_found}</span>
-          <span className="stat-label">Gaps identified</span>
+          <span className="stat-label">Gaps Identified</span>
         </div>
         <div className="stat">
           <span className="stat-value critical">{report.summary.critical_gaps}</span>
-          <span className="stat-label">Critical gaps</span>
+          <span className="stat-label">Critical Gaps</span>
         </div>
       </section>
 
       {report.obligation_explainer && <p className="summary-intro">{report.obligation_explainer}</p>}
 
       <section className="card">
-        <h2 className="section-title in-card">Regulatory timeline</h2>
+        <h2 className="section-title in-card">Regulatory Timeline</h2>
         <div className="timeline">
           {report.regulatory_timeline.map((t) => (
             <div key={t.phase} className="timeline-item">
@@ -111,7 +111,7 @@ export function ReportView({
       </section>
 
       <section className="card">
-        <h2 className="section-title in-card">Prioritized action plan</h2>
+        <h2 className="section-title in-card">Prioritized Action Plan</h2>
         {report.prioritized_action_plan.map((phase) => (
           <div key={phase.phase} className="phase-block">
             <h3>
@@ -129,7 +129,7 @@ export function ReportView({
 
       {report.legal_sources.length > 0 && (
         <section className="card">
-          <h2 className="section-title in-card">Legal source documents</h2>
+          <h2 className="section-title in-card">Legal Source Documents</h2>
           <p className="section-note">Primary and secondary sources used to ground this assessment.</p>
           <ul className="report-sources-list">
             {report.legal_sources
@@ -152,9 +152,33 @@ export function ReportView({
         </section>
       )}
 
+      {Object.keys(questionsBySection).length > 0 && (
+        <section className="card">
+          <h2 className="section-title in-card">Questionnaire Responses</h2>
+          <p className="section-note">
+            Complete record of your assessment answers for reference. Items without a recorded response are
+            marked <em>Not answered</em>. ({report.summary.questions_answered ?? 0} of{" "}
+            {report.summary.questions_total ?? 0} responses recorded)
+          </p>
+          {Object.entries(questionsBySection).map(([section, questions]) => (
+            <div key={section} className="questionnaire-section">
+              <h3>{section}</h3>
+              {questions.map((q) => (
+                <article key={q.id} className={`question-response ${q.answered ? "" : "unanswered"}`}>
+                  <p className="question-prompt">{q.prompt}</p>
+                  <p className="question-answer">
+                    <strong>Response:</strong> {q.answer_display}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ))}
+        </section>
+      )}
+
       {Object.keys(byCategory).length > 0 && (
         <section className="card obligations-section">
-          <h2 className="section-title in-card">Detailed obligation assessment</h2>
+          <h2 className="section-title in-card">Detailed Obligation Assessment</h2>
           <p className="section-note">
             {report.obligation_assessment_intro ??
               "Obligations assessed from your answers. Items marked Not Answered need questionnaire input."}
@@ -194,30 +218,6 @@ export function ReportView({
                       ))}
                     </div>
                   )}
-                </article>
-              ))}
-            </div>
-          ))}
-        </section>
-      )}
-
-      {Object.keys(questionsBySection).length > 0 && (
-        <section className="card">
-          <h2 className="section-title in-card">Questionnaire responses</h2>
-          <p className="section-note">
-            Complete record of your assessment answers for reference. Items without a recorded response are
-            marked <em>Not answered</em>. ({report.summary.questions_answered ?? 0} of{" "}
-            {report.summary.questions_total ?? 0} responses recorded)
-          </p>
-          {Object.entries(questionsBySection).map(([section, questions]) => (
-            <div key={section} className="questionnaire-section">
-              <h3>{section}</h3>
-              {questions.map((q) => (
-                <article key={q.id} className={`question-response ${q.answered ? "" : "unanswered"}`}>
-                  <p className="question-prompt">{q.prompt}</p>
-                  <p className="question-answer">
-                    <strong>Response:</strong> {q.answer_display}
-                  </p>
                 </article>
               ))}
             </div>

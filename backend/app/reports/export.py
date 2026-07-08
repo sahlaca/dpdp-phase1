@@ -430,55 +430,55 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
     </p>
   </div>
 
-  <h2 class="section-title">Executive summary</h2>
+  <h2 class="section-title">Executive Summary</h2>
   <div class="summary-card">
     <div class="summary-row">
       <div class="stat">
         <span class="stat-value">{summary.get("obligations_assessed", summary.get("total_obligations", 0))}</span>
-        <span class="stat-label">Obligations assessed</span>
+        <span class="stat-label">Obligations Assessed</span>
       </div>
       <div class="stat">
         <span class="stat-value">{summary.get("gaps_found", 0)}</span>
-        <span class="stat-label">Gaps identified</span>
+        <span class="stat-label">Gaps Identified</span>
       </div>
       <div class="stat">
         <span class="stat-value critical">{summary.get("critical_gaps", 0)}</span>
-        <span class="stat-label">Critical gaps</span>
+        <span class="stat-label">Critical Gaps</span>
       </div>
     </div>
   </div>
   <div class="summary-intro">{escape(report.get("obligation_explainer", ""))}</div>
 
-  <h2 class="section-title">Regulatory timeline</h2>
+  <h2 class="section-title">Regulatory Timeline</h2>
   <table class="timeline-table">
     <thead><tr><th>Phase</th><th>Date</th><th>Requirement</th></tr></thead>
     <tbody>{timeline_rows}</tbody>
   </table>
 
-  <h2 class="section-title">Prioritized action plan</h2>
+  <h2 class="section-title">Prioritized Action Plan</h2>
   {plan_html}
 
   <div class="page-break"></div>
-  <h2 class="section-title">Legal source documents</h2>
+  <h2 class="section-title">Legal Source Documents</h2>
   <p style="font-size:9pt;color:#64748b">Primary and secondary sources used to ground this assessment.</p>
   <ul class="sources-list">{sources_html}</ul>
 
   <div class="page-break"></div>
-  <h2 class="section-title">Detailed obligation assessment</h2>
-  <p style="font-size:9pt;color:#64748b;margin-bottom:0.75rem">
-    {escape(report.get("obligation_assessment_intro", ""))}
-  </p>
-  <div class="summary-intro">{escape(report.get("obligation_relationship_note", ""))}</div>
-  {obligations_html}
-
-  <div class="page-break"></div>
-  <h2 class="section-title">Questionnaire responses</h2>
+  <h2 class="section-title">Questionnaire Responses</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
     Complete record of your assessment answers for reference. Items without a recorded response are
     marked <em>Not answered</em>.
     ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} responses recorded)
   </p>
   {questionnaire_html}
+
+  <div class="page-break"></div>
+  <h2 class="section-title">Detailed Obligation Assessment</h2>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:0.75rem">
+    {escape(report.get("obligation_assessment_intro", ""))}
+  </p>
+  <div class="summary-intro">{escape(report.get("obligation_relationship_note", ""))}</div>
+  {obligations_html}
 
   <p class="disclaimer">{disclaimer}</p>
 </body>
