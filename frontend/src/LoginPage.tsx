@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { login, register } from "./api";
-import { APP_DISCLAIMER, APP_FEATURES, APP_TAGLINE } from "./appContent";
+import { APP_DISCLAIMER, APP_FEATURES, APP_TAGLINE, APP_BRAND_TITLE, AROHA_LOGO_URL, LOGIN_HEADLINE } from "./appContent";
 import { setAuth, type AuthUser } from "./auth";
 
 export function LoginPage({ onSuccess }: { onSuccess: (user: AuthUser) => void }) {
@@ -38,8 +38,11 @@ export function LoginPage({ onSuccess }: { onSuccess: (user: AuthUser) => void }
   return (
     <div className="login-shell">
       <section className="login-hero">
-        <p className="eyebrow">DPDP Compliance Guidance</p>
-        <h1>Understand your DPDP obligations in minutes</h1>
+        <div className="login-logo-wrap logo-badge">
+          <img src={AROHA_LOGO_URL} alt="Aroha" />
+        </div>
+        <p className="eyebrow">{APP_BRAND_TITLE}</p>
+        <h1>{LOGIN_HEADLINE}</h1>
         <p className="login-lead">{APP_TAGLINE}</p>
         <ul className="login-features">
           {APP_FEATURES.map((f) => (

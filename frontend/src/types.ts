@@ -58,6 +58,7 @@ export interface Citation {
 
 export interface GapReport {
   generated_at: string;
+  assessment_type?: "legal";
   company_name: string;
   sector: string;
   summary: {
@@ -106,7 +107,120 @@ export interface GapReport {
   }>;
   disclaimer: string;
   obligation_explainer?: string;
+  executive_overview?: string;
   obligation_assessment_intro?: string;
   obligation_relationship_note?: string;
-  obligation_field_legend?: string[];
+  obligation_field_legend?:
+    | {
+        title: string;
+        items: Array<{ label: string; description: string }>;
+      }
+    | string[];
+}
+
+export type TechnicalAnswer = "yes" | "partial" | "no" | "na";
+
+export interface TechnicalQuestionOption {
+  value: TechnicalAnswer;
+  label: string;
+  points: number | null;
+}
+
+export interface TechnicalQuestion {
+  id: string;
+  domain_id: string;
+  domain_name: string;
+  code: string;
+  prompt: string;
+  options: TechnicalQuestionOption[];
+}
+
+export interface TechnicalDomain {
+  id: string;
+  name: string;
+  number: number;
+  description: string;
+}
+
+export interface TechnicalQuestionnaireResponse {
+  version: string;
+  title: string;
+  scoring_criteria: string[];
+  domains: TechnicalDomain[];
+  questions: TechnicalQuestion[];
+}
+
+export interface TechnicalReport {
+  generated_at: string;
+  assessment_type: "technical";
+  report_title: string;
+  survey_title: string;
+  company_name: string;
+  sector: string;
+  executive_overview?: string;
+  summary: {
+    overall_compliance_pct: number;
+    total_score: number;
+    max_points: number;
+    risk_level: string;
+    scorecard_note?: string;
+    questions_total: number;
+    questions_answered: number;
+  };
+  domains: Array<{
+    id: string;
+    name: string;
+    number: number;
+    score: number;
+    max_points: number;
+    compliance_pct: number;
+    status: string;
+    service_opportunity: string;
+    questions: Array<{
+      id: string;
+      code: string;
+      prompt: string;
+      answer: TechnicalAnswer | null;
+      answer_label: string;
+      points: number | null;
+      answered: boolean;
+    }>;
+  }>;
+  questionnaire_responses: Array<{
+    id: string;
+    code: string;
+    domain_id: string;
+    prompt: string;
+    answer: TechnicalAnswer | null;
+    answer_label: string;
+    points: number | null;
+    answered: boolean;
+  }>;
+  critical_gaps: Array<{
+    id?: string;
+    code: string;
+    domain: string;
+    domain_number?: number;
+    title?: string;
+    prompt: string;
+    gap?: string;
+    legal_risk?: string;
+    recommended_service?: string;
+    service_opportunity?: string;
+  }>;
+  remediation_pathway: Array<{
+    phase: string;
+    timeline?: string;
+    deadline?: string;
+    summary?: string;
+    deliverables?: string[];
+    items: string[];
+  }>;
+  disclaimer: string;
+}
+
+export type SavedReport = GapReport | TechnicalReport;
+
+export function isTechnicalReport(report: SavedReport): report is TechnicalReport {
+  return report.assessment_type === "technical";
 }

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { renderLegalReportHtml } from "./api";
-import type { GapReport } from "./types";
+import { renderTechnicalReportHtml } from "./api";
+import type { TechnicalReport } from "./types";
 
-export function ReportView({
+export function TechnicalReportView({
   report,
   onDownload,
   downloading,
 }: {
-  report: GapReport;
+  report: TechnicalReport;
   onDownload: () => void;
   downloading: boolean;
 }) {
@@ -17,14 +17,14 @@ export function ReportView({
   useEffect(() => {
     setHtml(null);
     setError(null);
-    renderLegalReportHtml(report)
+    renderTechnicalReportHtml(report)
       .then(setHtml)
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to render report"));
   }, [report]);
 
   return (
-    <div className="legal-report-shell">
-      <div className="report-toolbar legal-report-toolbar">
+    <div className="technical-report-shell">
+      <div className="report-toolbar technical-report-toolbar">
         <button className="btn secondary" onClick={onDownload} disabled={downloading}>
           {downloading ? "Preparing PDF…" : "Download PDF report"}
         </button>
@@ -33,7 +33,10 @@ export function ReportView({
       {error && <p className="error-banner">{error}</p>}
       {!html && !error && <p className="section-note">Loading report…</p>}
       {html && (
-        <div className="legal-report-embed" dangerouslySetInnerHTML={{ __html: html }} />
+        <div
+          className="technical-report-embed"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       )}
     </div>
   );

@@ -43,6 +43,7 @@ class ReportHistoryItem(BaseModel):
     id: int
     company_name: str
     sector: str
+    assessment_type: str
     generated_at: str
     summary: dict
 
@@ -117,6 +118,7 @@ def report_history(user: User = Depends(get_current_user), db: Session = Depends
             id=r.id,
             company_name=r.company_name,
             sector=r.sector,
+            assessment_type=getattr(r, "assessment_type", None) or r.report.get("assessment_type", "legal"),
             generated_at=r.generated_at.isoformat(),
             summary=r.report.get("summary", {}),
         )

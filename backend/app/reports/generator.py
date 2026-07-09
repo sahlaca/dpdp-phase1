@@ -22,12 +22,72 @@ OBLIGATION_RELATIONSHIP_NOTE = (
     "and one obligation may need answers to multiple questions."
 )
 
-OBLIGATION_FIELD_LEGEND = [
-    "For each obligation below:",
-    "Requirement = What does the law say?",
-    "Assessment = Where do we stand?",
-    "Recommended Action = What should we do now?",
-]
+OBLIGATION_FIELD_LEGEND = {
+    "title": "For each obligation below:",
+    "items": [
+        {"label": "Requirement", "description": "What does the law say?"},
+        {"label": "Assessment", "description": "Where do we stand?"},
+        {"label": "Recommended Action", "description": "What should we do now?"},
+    ],
+}
+
+
+def build_legal_executive_overview(
+    company: str,
+    *,
+    obligations_in_scope: int,
+    obligations_assessed: int,
+    gaps_found: int,
+    critical_gaps: int,
+    obligations_pending: int,
+) -> str:
+    """Narrative executive overview for the legal gap report."""
+    opening = (
+        f"{company} was assessed against applicable Data Fiduciary obligations under India's "
+        "Digital Personal Data Protection Act, 2023 and the DPDP Rules, 2025. This legal "
+        "compliance assessment maps your questionnaire responses to statutory requirements "
+        "and identifies where practices meet, partially meet, or fall short of those obligations."
+    )
+
+    if obligations_in_scope == 0:
+        findings = (
+            "No applicable obligations were identified from the responses provided. "
+            "Review your questionnaire answers or consult counsel if this result is unexpected."
+        )
+    elif obligations_pending:
+        findings = (
+            f"Of {obligations_in_scope} obligations in scope, {obligations_assessed} could be "
+            f"assessed from your answers and {obligations_pending} remain pending further input. "
+            f"{gaps_found} gap{'s' if gaps_found != 1 else ''} were identified"
+        )
+        if critical_gaps:
+            findings += f", including {critical_gaps} critical item{'s' if critical_gaps != 1 else ''} marked Not Met."
+        else:
+            findings += "."
+    else:
+        findings = (
+            f"Of {obligations_in_scope} obligations in scope, {obligations_assessed} were assessed "
+            f"from your answers. {gaps_found} gap{'s' if gaps_found != 1 else ''} were identified"
+        )
+        if critical_gaps:
+            findings += (
+                f", including {critical_gaps} critical item{'s' if critical_gaps != 1 else ''} "
+                "marked Not Met that warrant immediate attention."
+            )
+        elif gaps_found:
+            findings += " requiring remediation or clarification."
+        else:
+            findings += (
+                ". No material gaps were identified from the answers provided — continue monitoring "
+                "regulatory updates and maintain current controls."
+            )
+
+    closing = (
+        "The prioritized action plan, regulatory timeline, and detailed obligation assessment "
+        "below set out recommended next steps ahead of the November 2026 and May 2027 compliance milestones."
+    )
+
+    return f"{opening}\n\n{findings} {closing}"
 
 
 def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
@@ -83,8 +143,18 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
         },
     ]
 
+    executive_overview = build_legal_executive_overview(
+        submission.company_name,
+        obligations_in_scope=obligations_in_scope,
+        obligations_assessed=obligations_assessed,
+        gaps_found=len(gaps),
+        critical_gaps=len(not_met),
+        obligations_pending=obligations_pending,
+    )
+
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "assessment_type": "legal",
         "company_name": submission.company_name,
         "sector": submission.sector,
         "summary": {
@@ -98,6 +168,7 @@ def generate_gap_report(submission: QuestionnaireSubmission) -> dict:
             "obligations_not_answered": obligations_pending,
             "obligations_in_scope": obligations_in_scope,
         },
+        "executive_overview": executive_overview,
         "obligation_explainer": OBLIGATION_EXPLAINER,
         "obligation_assessment_intro": OBLIGATION_ASSESSMENT_INTRO,
         "obligation_relationship_note": OBLIGATION_RELATIONSHIP_NOTE,

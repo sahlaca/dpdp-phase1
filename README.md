@@ -1,6 +1,6 @@
 # DPDP Phase 1 — Compliance Guidance Generator
 
-Questionnaire-driven app that produces personalized DPDP compliance gap reports for Indian SMEs.
+Questionnaire-driven app that produces personalized DPDP compliance gap reports for organizations subject to India's DPDP Act 2023 and Rules 2025.
 
 **Full documentation:** [docs/PROJECT_DOCUMENTATION.md](docs/PROJECT_DOCUMENTATION.md)
 

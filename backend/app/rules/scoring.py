@@ -433,10 +433,10 @@ def score_obligation(obligation_id: str, answers: dict[str, Any]) -> tuple[Compl
             "sdf_audit": "annual audit",
         }
         if prep == "prepared":
-            return ComplianceStatus.MET, f"SDF readiness: {labels[obligation_id]} prepared.", "Maintain readiness pending designation."
+            return ComplianceStatus.MET, f"SDF compliance assessment: {labels[obligation_id]} prepared.", "Maintain compliance posture pending designation."
         if prep == "in_progress":
-            return ComplianceStatus.PARTIAL, f"SDF readiness: {labels[obligation_id]} in progress.", f"Complete {labels[obligation_id]} before designation."
-        return ComplianceStatus.NOT_MET, f"SDF readiness: {labels[obligation_id]} not started.", f"Begin {labels[obligation_id]} preparation per Section 10.."
+            return ComplianceStatus.PARTIAL, f"SDF compliance assessment: {labels[obligation_id]} in progress.", f"Complete {labels[obligation_id]} before designation."
+        return ComplianceStatus.NOT_MET, f"SDF compliance assessment: {labels[obligation_id]} not started.", f"Begin {labels[obligation_id]} preparation per Section 10.."
 
     # --- Special ---
     if obligation_id == "employee_data_safeguards":

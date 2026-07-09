@@ -47,6 +47,7 @@ class SavedReport(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     company_name: Mapped[str] = mapped_column(String(255), nullable=False)
     sector: Mapped[str] = mapped_column(String(64), nullable=False)
+    assessment_type: Mapped[str] = mapped_column(String(32), nullable=False, default="legal", index=True)
     submission: Mapped[dict] = mapped_column(JSONB, nullable=False)
     report: Mapped[dict] = mapped_column(JSONB, nullable=False)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

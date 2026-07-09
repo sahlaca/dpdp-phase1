@@ -7,6 +7,8 @@ from html import escape
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from app.branding import render_report_cover, report_cover_styles
+
 _STATUS_LABELS = {
     "met": "Met",
     "partial": "Partially Met",
@@ -65,6 +67,28 @@ def _sector_label(sector: str) -> str:
     return _SECTOR_LABELS.get(sector, sector.replace("_", " ").title())
 
 
+def _paragraphs(text: str) -> str:
+    return "".join(f"<p>{escape(p.strip())}</p>" for p in text.split("\n\n") if p.strip())
+
+
+def _legal_executive_overview(report: dict[str, Any]) -> str:
+    overview = report.get("executive_overview", "")
+    if overview:
+        return overview
+
+    from app.reports.generator import build_legal_executive_overview
+
+    summary = report.get("summary", {})
+    return build_legal_executive_overview(
+        report.get("company_name", "Your organization"),
+        obligations_in_scope=summary.get("obligations_in_scope", summary.get("total_obligations", 0)),
+        obligations_assessed=summary.get("obligations_assessed", summary.get("total_obligations", 0)),
+        gaps_found=summary.get("gaps_found", 0),
+        critical_gaps=summary.get("critical_gaps", 0),
+        obligations_pending=summary.get("obligations_not_answered", 0),
+    )
+
+
 def _report_styles(for_pdf: bool) -> str:
     page_rules = """
     @page {
@@ -81,8 +105,35 @@ def _report_styles(for_pdf: bool) -> str:
     }
     """ if for_pdf else ""
 
+    web_summary = """
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .summary-row .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      height: auto;
+      min-height: 5.5rem;
+      padding: 1rem 0.75rem;
+      border: 1px solid #e2e8f0;
+    }
+    .summary-row .stat-value {
+      font-size: 1.75rem;
+    }
+    .summary-row .stat-label {
+      font-size: 0.7rem;
+      min-height: auto;
+    }
+    """ if not for_pdf else ""
+
     return f"""
     {page_rules}
+    {web_summary}
     * {{ box-sizing: border-box; }}
     body {{
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -92,33 +143,7 @@ def _report_styles(for_pdf: bool) -> str:
       margin: 0;
       padding: 0;
     }}
-    .cover {{
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-      color: #fff;
-      padding: 2rem 1.75rem;
-      border-radius: 8px;
-      margin-bottom: 1.75rem;
-    }}
-    .cover-eyebrow {{
-      font-size: 9pt;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #93c5fd;
-      margin: 0 0 0.5rem;
-    }}
-    .cover h1 {{
-      margin: 0 0 0.35rem;
-      font-size: 22pt;
-      font-weight: 700;
-      border: none;
-      color: #fff;
-    }}
-    .cover-meta {{
-      margin: 0;
-      font-size: 10pt;
-      color: #cbd5e1;
-    }}
-    .cover-meta strong {{ color: #fff; }}
+    {report_cover_styles()}
     h2.section-title {{
       font-size: 12pt;
       color: #1e40af;
@@ -147,6 +172,18 @@ def _report_styles(for_pdf: bool) -> str:
     }}
     .summary-intro strong {{
       color: #1e40af;
+    }}
+    .prose {{
+      font-size: 9.5pt;
+      color: #334155;
+      margin: 0 0 0.85rem;
+      line-height: 1.55;
+    }}
+    .prose p {{
+      margin: 0 0 0.65rem;
+    }}
+    .prose p:last-child {{
+      margin-bottom: 0;
     }}
     .summary-card {{
       width: 100%;
@@ -295,6 +332,39 @@ def _report_styles(for_pdf: bool) -> str:
       color: #334155;
       line-height: 1.5;
     }}
+    .legend-title {{
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 0.35rem;
+    }}
+    .legend-list {{
+      margin: 0;
+      padding-left: 1.15rem;
+    }}
+    .legend-list li {{
+      margin-bottom: 0.2rem;
+    }}
+    .response-intro {{
+      font-size: 9pt;
+      color: #64748b;
+      margin: 0 0 0.75rem;
+    }}
+    .question-accordion summary {{
+      cursor: pointer;
+      font-size: 10pt;
+      font-weight: 600;
+      color: #1e40af;
+      list-style: none;
+      padding: 0.15rem 0;
+    }}
+    .question-accordion summary::-webkit-details-marker {{ display: none; }}
+    .question-accordion summary::before {{
+      content: "▸ ";
+      color: #64748b;
+      font-weight: 700;
+    }}
+    .question-accordion[open] summary::before {{ content: "▾ "; }}
+    .question-accordion .question-body {{ margin-top: 0.5rem; }}
     .field-legend p {{
       margin: 0.15rem 0;
     }}
@@ -340,7 +410,30 @@ def _report_styles(for_pdf: bool) -> str:
     """
 
 
-def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool = False) -> str:
+def _render_obligation_field_legend(report: dict[str, Any]) -> str:
+    legend = report.get("obligation_field_legend")
+    if isinstance(legend, dict) and legend.get("items"):
+        items_html = "".join(
+            f'<li><strong>{escape(item.get("label", ""))}</strong> — {escape(item.get("description", ""))}</li>'
+            for item in legend["items"]
+        )
+        title = escape(legend.get("title", "For each obligation below:"))
+        return f'<div class="field-legend"><p class="legend-title">{title}</p><ul class="legend-list">{items_html}</ul></div>'
+
+    lines = legend if isinstance(legend, list) else [
+        "For each obligation below:",
+        "Requirement — What does the law say?",
+        "Assessment — Where do we stand?",
+        "Recommended Action — What should we do now?",
+    ]
+    return '<div class="field-legend">' + "".join(f"<p>{escape(line)}</p>" for line in lines) + "</div>"
+
+
+def render_legal_report_body(
+    report: dict[str, Any],
+    base_url: str = "",
+    for_pdf: bool = False,
+) -> str:
     company = escape(report.get("company_name", ""))
     sector = escape(_sector_label(report.get("sector", "")))
     generated = escape(_fmt_date(report.get("generated_at", "")))
@@ -401,20 +494,32 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
         plan_html += f'<div class="phase-block"><h3>{escape(phase.get("phase", ""))}{dl_text}</h3><ul>{items}</ul></div>'
 
     questionnaire_html = ""
-    current_section = ""
+    sections: dict[str, list[dict[str, Any]]] = {}
     for row in report.get("questionnaire_responses", []):
         section = row.get("section", "")
-        if section != current_section:
-            current_section = section
-            questionnaire_html += f'<h3 class="category">{escape(section)}</h3>\n'
-        answered = row.get("answered", False)
-        answer = escape(row.get("answer_display", "Not answered"))
-        answer_style = "color:#0f172a" if answered else "color:#64748b;font-style:italic"
-        questionnaire_html += f"""
+        sections.setdefault(section, []).append(row)
+
+    for section, rows in sections.items():
+        section_rows = ""
+        for row in rows:
+            answered = row.get("answered", False)
+            answer = escape(row.get("answer_display", "Not answered"))
+            answer_style = "color:#0f172a" if answered else "color:#64748b;font-style:italic"
+            section_rows += f"""
         <div class="question-row">
           <p class="question-prompt">{escape(row.get("prompt", ""))}</p>
           <p class="question-answer" style="{answer_style}"><strong>Response:</strong> {answer}</p>
         </div>"""
+        answered_count = sum(1 for r in rows if r.get("answered"))
+        meta = f"{len(rows)} questions · {answered_count} answered"
+        if for_pdf:
+            questionnaire_html += f'<h3 class="category">{escape(section)}</h3>\n{section_rows}'
+        else:
+            questionnaire_html += f"""
+        <details class="question-accordion">
+          <summary>{escape(section)} <span style="font-weight:400;color:#64748b">({meta})</span></summary>
+          <div class="question-body">{section_rows}</div>
+        </details>"""
 
     sources_html = ""
     for s in report.get("legal_sources", []):
@@ -439,27 +544,21 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
           <td>{escape(t.get("description", ""))}</td>
         </tr>"""
 
-    styles = _report_styles(for_pdf=for_pdf)
+    sources_break = '<div class="page-break"></div>' if for_pdf else ""
+    questionnaire_break = '<div class="page-break"></div>' if for_pdf else ""
+    obligations_break = '<div class="page-break"></div>' if for_pdf else ""
+    response_intro = (
+        ""
+        if for_pdf
+        else '<p class="response-intro">Expand each section below to review your questionnaire responses.</p>'
+    )
 
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <title>DPDP Compliance Gap Report — {company}</title>
-  <style>{styles}</style>
-</head>
-<body>
-  <div class="cover">
-    <p class="cover-eyebrow">DPDP Act 2023 · Rules 2025</p>
-    <h1>Compliance Gap Report</h1>
-    <p class="cover-meta">
-      <strong>{company}</strong><br/>
-      Sector: {sector}<br/>
-      Generated: {generated}
-    </p>
-  </div>
+    return f"""
+  <div class="legal-report-body">
+  {render_report_cover(company, sector, generated, "Legal Assessment", include_logo=for_pdf)}
 
   <h2 class="section-title">Executive Summary</h2>
+  <div class="prose">{_paragraphs(_legal_executive_overview(report))}</div>
   <div class="summary-card">
     <div class="summary-row">
       <div class="stat">
@@ -487,38 +586,46 @@ def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool
   <h2 class="section-title">Prioritized Action Plan</h2>
   {plan_html}
 
-  <div class="page-break"></div>
+  {sources_break}
   <h2 class="section-title">Legal Source Documents</h2>
   <p style="font-size:9pt;color:#64748b">Primary and secondary sources used to ground this assessment.</p>
   <ul class="sources-list">{sources_html}</ul>
 
-  <div class="page-break"></div>
+  {questionnaire_break}
   <h2 class="section-title">Questionnaire Responses</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:1rem">
     Complete record of your assessment answers for reference. Items without a recorded response are
     marked <em>Not answered</em>.
     ({summary.get("questions_answered", 0)} of {summary.get("questions_total", 0)} responses recorded)
   </p>
+  {response_intro}
   {questionnaire_html}
 
-  <div class="page-break"></div>
+  {obligations_break}
   <h2 class="section-title">Detailed Obligation Assessment</h2>
   <p style="font-size:9pt;color:#64748b;margin-bottom:0.75rem">
     {escape(report.get("obligation_assessment_intro", ""))}
   </p>
   <div class="summary-intro">{escape(report.get("obligation_relationship_note", ""))}</div>
-  <div class="field-legend">
-    {"".join(f"<p>{escape(line)}</p>" for line in report.get("obligation_field_legend", [
-        "For each obligation below:",
-        "Requirement = What does the law say?",
-        "Assessment = Where do we stand?",
-        "Recommended Action = What should we do now?",
-    ]))}
-  </div>
+  {_render_obligation_field_legend(report)}
   {obligations_html}
 
   <p class="disclaimer">{disclaimer}</p>
-</body>
+  </div>"""
+
+
+def render_html_report(report: dict[str, Any], base_url: str = "", for_pdf: bool = False) -> str:
+    body = render_legal_report_body(report, base_url=base_url, for_pdf=for_pdf)
+    styles = _report_styles(for_pdf=for_pdf)
+    company = escape(report.get("company_name", ""))
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>DPDP Compliance Gap Report — {company}</title>
+  <style>{styles}</style>
+</head>
+<body>{body}</body>
 </html>"""
 
 

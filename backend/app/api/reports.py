@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
@@ -10,7 +10,12 @@ from app.auth.deps import get_current_user
 from app.db.database import get_db
 from app.db.models import SavedReport, User
 from app.questionnaire.schema import QuestionnaireSubmission
-from app.reports.export import render_html_report, render_pdf_report
+from app.reports.export import (
+    _report_styles,
+    render_html_report,
+    render_legal_report_body,
+    render_pdf_report,
+)
 from app.reports.generator import generate_gap_report
 
 router = APIRouter()
@@ -18,7 +23,7 @@ router = APIRouter()
 
 def _safe_filename(company_name: str, ext: str) -> str:
     safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in company_name)[:40]
-    return f"DPDP_Gap_Report_{safe}.{ext}"
+    return f"DPDP_Legal_Gap_Report_{safe}.{ext}"
 
 
 def _persist_report(db: Session, user: User, submission: QuestionnaireSubmission, report: dict) -> None:
@@ -27,6 +32,7 @@ def _persist_report(db: Session, user: User, submission: QuestionnaireSubmission
             user_id=user.id,
             company_name=submission.company_name,
             sector=submission.sector,
+            assessment_type="legal",
             submission=submission.model_dump(),
             report=report,
         )
@@ -94,3 +100,18 @@ def download_report_html(
             "Content-Disposition": f'attachment; filename="{_safe_filename(submission.company_name, "html")}"',
         },
     )
+
+
+@router.post("/reports/render-html", response_class=HTMLResponse)
+def render_report_html(
+    report: dict[str, Any],
+    user: User = Depends(get_current_user),
+) -> HTMLResponse:
+    assessment_type = report.get("assessment_type", "legal")
+    if assessment_type != "legal":
+        raise HTTPException(status_code=400, detail="Not a legal assessment report")
+    fragment = (
+        f"<style>{_report_styles(for_pdf=False)}</style>"
+        f"{render_legal_report_body(report, base_url='', for_pdf=False)}"
+    )
+    return HTMLResponse(content=fragment)
